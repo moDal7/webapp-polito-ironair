@@ -1,7 +1,7 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/Ij4wZ9xX)
-# Exam #12345: "Exam Title"
+# Exam #2: "Airplane Seats"
 
-## Student: s123456 LASTNAME FIRSTNAME 
+## Student: s301199 Marco D'Almo
 
 # Server side
 
@@ -20,9 +20,11 @@
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `users` - contains user_id, credentials, has_reserved, reservation_id
+- Table `planes` - contains plane_id, num_seats, reserved_seats, occupied_seats
+- Table `reservations` - contains reservation_id, user_id, plane_id
+- Table `seats` - contains plane_id, seat_id, unic_seat_id
+
 
 # Client side
 
