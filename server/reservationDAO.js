@@ -2,13 +2,11 @@
 
 const db = require('./database');
 
-const getReservationsByUser = async (id) => {
-    const sql = `SELECT * FROM reservations
-                 WHERE user_id = ?`;
+const getReservationById = async (id) => {
+    const sql = `SELECT * FROM reservations WHERE id = ?`;
 
     return new Promise ((resolve, reject) => {
         db.database.all(sql, [id], (err, rows) => {
-            //console.log(rows);
             if(err)
                 reject(err);
             else{
@@ -78,4 +76,4 @@ const deleteReservation = async (reservation_id, user_id) => {
 }
 */
 
-module.exports = { getReservationsByUser};
+module.exports = { getReservationById};

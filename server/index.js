@@ -103,7 +103,7 @@ app.get('/api/planes/:id',
   [ check('id').isInt({min: 0}) ],
   async (req, res) => {
     try {
-      const result = await planesDao.getPlanesByIds(req.params.id);
+      const result = await planesDao.getPlanesById(req.params.id);
       if (result.error)
         res.status(404).json(result);
       else
@@ -121,8 +121,6 @@ app.get('/api/planes/',
   async (req, res) => {
     try {
       const result = await planesDao.getAllPlanes();
-      console.log(result);
-      console.log("ci arriviamo");
       if (result.error)
 
         res.status(404).json(result);
@@ -142,7 +140,7 @@ app.get('/api/reservations/:id',
   [ check('id').isInt({min: 0}) ],
   async (req, res) => {
     try {
-      const result = await planesDao.getReservationById(req.params.id);
+      const result = await reservationDao.getReservationById(req.params.id);
       if (result.error)
         res.status(404).json(result);
       else
