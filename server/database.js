@@ -11,4 +11,4 @@ const db = new sqlite.Database('planesDB.sqlite', (err) => {
     console.log('Connected to the SQlite database.');  }
 });
 
-module.exports = db;
+module.exports = {db};

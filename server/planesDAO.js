@@ -1,17 +1,18 @@
 'use strict';
 
-const db = require('../database');
+const db = require('./database');
 
 const getAllPlanes = async () => {
-    const sql = `SELECT * FROM planes`;
-
+    const sql = `SELECT * FROM planes`
+    
     return new Promise ((resolve, reject) => {
         db.database.all(sql, [], (err, rows) => {
-            //console.log(rows);
             if(err)
                 reject(err);
             else{
-                let planes =  rows;
+                console.log("ci arriviamo dao2");
+                let planes = [];
+                planes = rows;
                 resolve(planes);
             }
         })

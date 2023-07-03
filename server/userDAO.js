@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../database');
+const db = require('./database');
 const crypto = require('crypto');
 
 const getUser = (email, password) => {

@@ -3,23 +3,35 @@ import seat from '../images/seat.png';
 import { Col, Container, Row, Spinner, Button} from 'react-bootstrap';
 
 function createRows(seats_array) {
-  let seats_row = seats_array.map((row) => {
-     (<ul>{row.map((seat) => {
-         <Seat code={seat}/>
-    })}
-    </ul>)
-  })
+  
+  function Rows(seats_array) {
+   for (row of seats_array) {
+    row.map((seat) => {
+      return (
+      <Seat code={seat}/>
+    )
+  }
+  
+
+  const seats_row = Rows(seats_array)
   return seats_row;
 }
 
 function Seat(props) {
+
+  const [isSelected, setIsSelected] = useState(false);
+
+  const handleClick = () => {
+    setIsSelected(!isSelected);
+  };
+
     return (    
-        <div>
+        <div className={`toggle-component ${isSelected ? 'selected' : 'non-selected'}`}
+        onClick={handleClick}>
           <img src={seat} alt={props.code}/>
           <div>{props.code}</div>
         </div>
     )
-
 }
 
 function SeatVisualization(props) {

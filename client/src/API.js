@@ -80,8 +80,8 @@ const logIn = async (credentials) => {
   }
 
 const API = 
-{   planes,
-    plane,
+{   readPlanes,
+    readPlane,
     logIn,
     getUserInfo,
     logOut

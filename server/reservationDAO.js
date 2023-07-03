@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../database');
+const db = require('./database');
 
 const getReservationsByUser = async (id) => {
     const sql = `SELECT * FROM reservations
@@ -18,7 +18,7 @@ const getReservationsByUser = async (id) => {
         })
     })
 }
-
+/*
 const addReservation = async (user_id, plane_id, seats) => {
     
     let check = await reservationsCheck(user_id, plane_id, seats);
@@ -50,4 +50,32 @@ const addReservation = async (user_id, plane_id, seats) => {
     })
 }   
 
-module.exports = { getReservationsByUser, addReservation, getReservationById, deleteReservation};
+const deleteReservation = async (reservation_id, user_id) => {
+    const sql = `DELETE FROM reservations WHERE id = ?`;
+
+    return new Promise ((resolve, reject) => {
+        db.database.run(sql, [reservation_id], function(err) {
+            if(err)
+                reject(err);
+            else {
+                sql2 = `UPDATE users SET has_reserved = 0, WHERE id = ?`;
+                db.database.run(sql2, [user_id], function(err) {
+                    if(err)
+                        reject(err);
+                    else{
+                        sql3 = `UPDATE planes SET seats = seats + 1 WHERE id = ?`;
+                        db.database.run(sql3, [plane_id], function(err) {
+                            if(err)
+                                reject(err);
+                            else
+                                resolve(this.lastID);
+                        });
+                    }
+                resolve(this.lastID);
+        }
+    }));
+    })
+}
+*/
+
+module.exports = { getReservationsByUser};

@@ -6,10 +6,10 @@
     opacity: 0.6;
     transition: 0.3s;
     margin: 2rem;
-    margin-top: 30px;
     display: flex;
     justify-content: center;
-}
+    width: 80%;
+} 
 
 .PlaneCard:hover {
     transform: scale(1.03);
@@ -30,4 +30,12 @@
   
   .below-nav {
     padding-top: 5rem;
+  }
+
+  .title {
+    font-size: 2rem;
+    font-weight: 500;
+    color: #fff;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    margin-left: 2rem;
   }

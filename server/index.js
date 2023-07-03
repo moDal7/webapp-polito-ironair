@@ -6,11 +6,14 @@ const PORT = 3000;
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const session = require('express-session');
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const { check, validationResult } = require('express-validator');
 
-const userDao = require('./dao/userDAO');
-const seatsDao = require('./dao/seatsDAO');
-const planesDao = require('./dao/planesDAO');
-const reservationsDao = require('./dao/reservationsDAO');
+const userDao = require('./userDAO');
+const planesDao = require('./planesDAO');
+const reservationDao = require('./reservationDAO');
 
 const app = express();
 app.use(morgan('common'));
@@ -19,10 +22,10 @@ app.use(express.json());
 const PREFIX = '/api';
 
 
-// set up and enable cors
+/** Set up and enable Cross-Origin Resource Sharing (CORS) **/
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    credentials: true,
+  origin: 'http://localhost:5173',
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -91,16 +94,13 @@ app.delete(PREFIX+'/sessions/current', (req, res) => {
     });
 });
 
-app.get('/api/planes', 
-  (req, res) => {
-    planesDao.getAllPlanes(req.query.filter)
-      .then(planes => res.json(planes))
-      .catch((err) => res.status(500).json(err)); // always return a json and an error message
-  }
-);
+
+/***** PLANES APIS ******/
+// GET /api/planes/:id
+// get plane by id
 
 app.get('/api/planes/:id',
-  [ check('id').isInt({min: 1}) ],
+  [ check('id').isInt({min: 0}) ],
   async (req, res) => {
     try {
       const result = await planesDao.getPlanesByIds(req.params.id);
@@ -110,6 +110,94 @@ app.get('/api/planes/:id',
         res.json(result);
     } catch (err) {
       res.status(500).end();
+    }
+  }
+);
+
+// GET /api/planes/
+// get all planes
+
+app.get('/api/planes/',
+  async (req, res) => {
+    try {
+      const result = await planesDao.getAllPlanes();
+      console.log(result);
+      console.log("ci arriviamo");
+      if (result.error)
+
+        res.status(404).json(result);
+      else
+        res.json(result);
+    } catch (err) {
+      res.status(500).end();
+    }
+  }
+);
+
+/***** RESERVATIONS APIS ******/
+// POST /api/reservations/
+// create a new reservation
+
+app.get('/api/reservations/:id',
+  [ check('id').isInt({min: 0}) ],
+  async (req, res) => {
+    try {
+      const result = await planesDao.getReservationById(req.params.id);
+      if (result.error)
+        res.status(404).json(result);
+      else
+        res.json(result);
+    } catch (err) {
+      res.status(500).end();
+    }
+  }
+);
+
+app.post('/api/reservations/',
+  isLoggedIn,
+  [
+    check('plane').isInt({min: 0}),
+    check('seats').isLength({min: 2}),
+  ],
+  async (req, res) => {
+    // Is there any validation error?
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
+    }
+
+    // WARN: note that we expect watchDate with capital D but the databases does not care and uses lowercase letters, so it returns "watchdate"
+    const reservation = {
+      plane: req.body.plane,
+      seats: req.body.seats,
+      user: req.user.id  // user is overwritten with the id of the user that is doing the request and it is logged in
+    };
+
+    try {
+      const result = await reservationDao.addReservation(reservation); // NOTE: createFilm returns the new created object
+      res.json(result);
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` }); 
+    }
+  }
+);
+
+// DELETE /api/reservations/<id>
+// Given a reservation id, this route deletes the associated reserevation from the database.
+
+app.delete('/api/reservations/:id',
+  isLoggedIn,
+  [ check('id').isInt() ],
+  async (req, res) => {
+    try {
+      // NOTE: if there is no film with the specified id, the delete operation is considered successful.
+      const result = await reservationDao.deleteReservation(req.user.id, req.params.id);
+      if (result == null)
+        return res.status(200).json({}); 
+      else
+        return res.status(404).json(result);
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the deletion of the reservations ${req.params.id}: ${err} ` });
     }
   }
 );
