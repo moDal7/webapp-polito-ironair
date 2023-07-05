@@ -29,7 +29,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-  
+
+const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+  return `${location}[${param}]: ${msg}`;
+};
+
 // Passport: set up local strategy
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
     const user = await userDao.getUser(username, password)
@@ -62,6 +66,8 @@ app.use(session({
 app.use(passport.authenticate('session'));
 
 //POST /api/sessions
+// login
+
 app.post('/api/sessions', function(req, res, next) {
   passport.authenticate('local', (err, user, info) => {
     if (err)
@@ -79,6 +85,8 @@ app.post('/api/sessions', function(req, res, next) {
 });
   
 // GET /api/sessions/current
+// check whether the user is logged in or not
+
 app.get(PREFIX+'/sessions/current', (req, res) => {
     if(req.isAuthenticated()) {
         res.json(req.user);
@@ -88,12 +96,12 @@ app.get(PREFIX+'/sessions/current', (req, res) => {
 });
   
 // DELETE /api/session/currents
+
 app.delete(PREFIX+'/sessions/current', (req, res) => {
     req.logout(() => {
         res.end();
     });
 });
-
 
 /***** PLANES APIS ******/
 // GET /api/planes/:id
@@ -122,7 +130,6 @@ app.get('/api/planes/',
     try {
       const result = await planesDao.getAllPlanes();
       if (result.error)
-
         res.status(404).json(result);
       else
         res.json(result);
@@ -152,11 +159,11 @@ app.get('/api/reservations/:id',
 );
 
 app.post('/api/reservations/',
-  isLoggedIn,
+  /*isLoggedIn,
   [
     check('plane').isInt({min: 0}),
     check('seats').isLength({min: 2}),
-  ],
+  ],*/
   async (req, res) => {
     // Is there any validation error?
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
@@ -164,15 +171,15 @@ app.post('/api/reservations/',
       return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
     }
 
-    // WARN: note that we expect watchDate with capital D but the databases does not care and uses lowercase letters, so it returns "watchdate"
     const reservation = {
       plane: req.body.plane,
       seats: req.body.seats,
-      user: req.user.id  // user is overwritten with the id of the user that is doing the request and it is logged in
+      user: req.body.user  // user is overwritten with the id of the user that is doing the request and it is logged in
     };
 
     try {
       const result = await reservationDao.addReservation(reservation); // NOTE: createFilm returns the new created object
+      console.log(result)
       res.json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` }); 

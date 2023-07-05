@@ -19,6 +19,7 @@ CREATE TABLE planes(
     id INTEGER NOT NULL,
     plane_name VARCHAR(25) NULL,
     type VARCHAR(25) NULL,
+    desc VARCHAR(100) NULL,
     seats INTEGER NULL,
     num_rows INTEGER NULL,
     num_columns INTEGER NULL,
@@ -49,18 +50,23 @@ VALUES(000001, 'Giulia', 'Olivieri', 'giulia.olivieri@gmail.com', 'testpw', 'tes
       (000004, 'Daniela', 'Berardino', 'daniela.berardino@gmail.com', 'testpw', 'testsalt', 0);
 
 INSERT INTO planes(id, plane_name, type, seats, num_rows, num_columns, reserved_seats, occupied_seats)
-VALUES(1, 'ATR72', 'Local', 60, 15, 4, 0, 0),
-      (2, 'A220-100', 'Regional', 100, 20, 5, 0, 0),
-      (3, 'Boeing 737-7', 'International', 150, 25, 6, 0, 0);
+VALUES(1, 'ATR72', 'Local', 'Our local and smallest option, with up to 60 passengers.', 60, 15, 4, 0, 0),
+      (2, 'A220-100', 'Regional', 'With up to 100 passengers, our regional option is more comfortable for longer flights.', 100, 20, 5, 0, 0),
+      (3, 'Boeing 737-7', 'International', 'Our biggest aircraft, for our longest flight.' 150, 25, 6, 0, 0);
 
 INSERT INTO reservations(id, user_id, plane_id)
 VALUES(1, 000001, 1),
       (2, 000001, 2),
       (3, 000002, 2),
-      (4, 000002, 3);
+      (4, 000002, 3),
+      (5, 000002, 1);
 
 INSERT INTO seats_reserved(id, plane_id, row, column, reservation_id)
 VALUES(1, 1, 3, 'B', 1),
-      (2, 2, 2, 'A', 2),
-      (3, 2, 1, 'C', 3),
-      (4, 3, 2, 'A', 4);
+      (2, 1, 3, 'A', 1),
+      (3, 2, 2, 'A', 2),
+      (4, 2, 1, 'C', 3),
+      (5, 3, 2, 'A', 4),
+      (6, 3, 12, 'A', 5),
+      (7, 3, 12, 'B', 5);
+      

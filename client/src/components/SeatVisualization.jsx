@@ -1,20 +1,31 @@
 import React from 'react';
+import { useState } from 'react';
 import seat from '../images/seat.png';
 import { Col, Container, Row, Spinner, Button} from 'react-bootstrap';
 
-function createRows(seats_array) {
-  
-  function Rows(seats_array) {
-   for (row of seats_array) {
-    row.map((seat) => {
+function Rows(props) {
+    function SeatRow(row) {
+      const SeatRow = row.map((seat, i) => {
       return (
-      <Seat code={seat}/>
-    )
+        <div>
+          <Seat code={seat} key={i}/>
+        </div>
+      )
+    });
+    return SeatRow;
   }
-  
 
-  const seats_row = Rows(seats_array)
-  return seats_row;
+    return (
+      <div>
+        {props.SeatsArray.map((row, i) => {
+          return (
+            <div key={i}>
+              {SeatRow(row)}
+            </div>
+          )}
+        )}
+      </div>
+    )
 }
 
 function Seat(props) {
@@ -26,21 +37,22 @@ function Seat(props) {
   };
 
     return (    
-        <div className={`toggle-component ${isSelected ? 'selected' : 'non-selected'}`}
+        <span className="Seat"
         onClick={handleClick}>
-          <img src={seat} alt={props.code}/>
+          <img src={seat} alt={props.code} className='SeatImg'/>
           <div>{props.code}</div>
-        </div>
+        </span>
     )
 }
 
 function SeatVisualization(props) {
-    return (    
+
+  return (  
         <div>
-          {() => createRows(props.SeatsArray)}
+          <Rows SeatsArray={props.SeatsArray}/>
         </div>
     )
-
 }
+
 
 export default SeatVisualization;

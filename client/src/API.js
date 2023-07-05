@@ -2,7 +2,7 @@ const APIURL = 'http://localhost:3000';
 
 
 async function readPlanes() {
-    const url = APIURL + '/planes';
+    const url = APIURL + '/planes/';
     try {
         const response = await fetch(url);
         if (response.ok) {
@@ -24,7 +24,6 @@ async function readPlane(pid) {
         const response = await fetch(url);
         if (response.ok) {
             const list = await response.json();
-            //console.log(list);
             return list;
         } else {
             const text = await response.text();
@@ -58,6 +57,15 @@ const logIn = async (credentials) => {
     }
   };
   
+  const logOut = async() => {
+    const response = await fetch(APIURL + '/sessions/current', {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    if (response.ok)
+      return null;
+  }
+
   const getUserInfo = async () => {
     const response = await fetch(APIURL + '/sessions/current', {
       credentials: 'include',
@@ -69,15 +77,6 @@ const logIn = async (credentials) => {
       throw user;  // an object with the error coming from the server
     }
   };
-  
-  const logOut = async() => {
-    const response = await fetch(APIURL + '/sessions/current', {
-      method: 'DELETE',
-      credentials: 'include'
-    });
-    if (response.ok)
-      return null;
-  }
 
 const API = 
 {   readPlanes,
