@@ -34,4 +34,18 @@ const getPlanesById = async (id) => {
     })
 }
 
-module.exports = { getAllPlanes, getPlanesById };
+const getOccupiedSeats = async (plane_id) => {
+    const sql = `SELECT * FROM seats_reserved WHERE plane_id = ?`;
+    return new Promise ((resolve, reject) => {
+        db.database.all(sql, [plane_id], (err, rows) => {
+            if(err)
+                reject(err);
+            else{
+                let seats =  rows;
+                resolve(seats);
+            }
+        })
+    })
+}
+
+module.exports = { getAllPlanes, getPlanesById, getOccupiedSeats};

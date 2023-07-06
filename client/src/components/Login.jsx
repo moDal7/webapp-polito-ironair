@@ -1,15 +1,16 @@
-import { Col, Button, Row, Alert, Form, Spinner } from 'react-bootstrap';
+import { Col, Button, Row, Form, Spinner } from 'react-bootstrap';
 import API from '../API';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-function Login(props){
 
-    const navigate = useNavigate();
+function Login(props){
 
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [greet, setGreet] = useState(false);
+    const navigate = useNavigate();
   
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -23,31 +24,19 @@ function Login(props){
         try {
             setLoading(true);
             const user = await API.logIn(credentials);
+            const userInfo = await API.getUserInfo();
             setLoading(false);
             props.setLoggedIn(true);
-            props.setMessage({msg: `Welcome, ${user.name}!`, type: 'success'});
-            props.setTypeNav(2);
-            navigate('/studyPlan');
+            props.setUser(userInfo);
+
+            setGreet(true);
+            setTimeout(() => {navigate('/');}, 2000);
+
         }catch(err) {
             console.log(err);
-            props.setMessage({msg: err, type: 'danger'});
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        const logout = async () => {
-            if(props.loggedIn === true){
-                await API.logOut();
-                props.setLoggedIn(false);
-                props.setTypeNav(1);
-            }
-            else{
-                props.setTypeNav(1);
-            }
-        }
-        logout();
-    })
 
     return <>
         {loading === true 
@@ -60,23 +49,9 @@ function Login(props){
         <br/>
         <Row>
             <Col xs={5}></Col>
-            <Col xs={6}><h2>Login</h2></Col>
+            {greet ? <Col xs={6}><h2>Ciao, {props.user["name"]}</h2></Col> : <Col xs={6}><h2>Login</h2></Col>}
         </Row>
         <br/>
-        {
-            props.message && 
-            <>
-                <Row>
-                    <Col xs={3}></Col>
-                    <Col xs={6}>
-                        <Alert variant={props.message.type} onClose={() => props.setMessage('')} dismissible>{props.message.msg}</Alert>
-                    </Col>
-                    <Col xs={3}></Col>
-                </Row>
-            </>
-        }
-        {
-            !props.message &&
             <Col xs={11} className='d-flex justify-content-center'>
                 <Form onSubmit={handleSubmit}>
                     <Form.Group className="mb-3" controlId='username'>
@@ -97,7 +72,7 @@ function Login(props){
                     </Row>
                 </Form>
             </Col>
-        }
+        
         </>
     }
     </>

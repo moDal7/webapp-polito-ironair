@@ -2,21 +2,32 @@
 
 const PORT = 3000;
 
+
 // Passport-related imports
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+
+
+// Express-related imports
 const session = require('express-session');
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+
+
+// Express validator
 const { check, validationResult } = require('express-validator');
 
+
+// DAO imports
 const userDao = require('./userDAO');
 const planesDao = require('./planesDAO');
 const reservationDao = require('./reservationDAO');
 
+
+// Create the server
 const app = express();
-app.use(morgan('common'));
+app.use(morgan('dev'));
 app.use(express.json());
 
 const PREFIX = '/api';
@@ -26,10 +37,12 @@ const PREFIX = '/api';
 const corsOptions = {
   origin: 'http://localhost:5173',
   credentials: true,
+  optionSuccessStatus:200
 };
 app.use(cors(corsOptions));
 
 
+// Error formatter for express-validator
 const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
   return `${location}[${param}]: ${msg}`;
 };
@@ -59,7 +72,7 @@ const isLoggedIn = (req, res, next) => {
 }
   
 app.use(session({
-    secret: "shhhhh... it's a secret!",
+    secret: "Can you keep a little secret?",
     resave: false,
     saveUninitialized: false,
 }));
@@ -122,6 +135,21 @@ app.get('/api/planes/:id',
   }
 );
 
+app.get('/api/planes/:id/seats',
+  [ check('id').isInt({min: 0}) ],
+  async (req, res) => {
+    try {
+      const result = await planesDao.getOccupiedSeats(req.params.id);
+      if (result.error)
+        res.status(404).json(result);
+      else
+        res.json(result);
+    } catch (err) {
+      res.status(500).end();
+    }
+  }
+);
+
 // GET /api/planes/
 // get all planes
 
@@ -129,10 +157,11 @@ app.get('/api/planes/',
   async (req, res) => {
     try {
       const result = await planesDao.getAllPlanes();
-      if (result.error)
+      if (result.error) {
         res.status(404).json(result);
-      else
+       } else {
         res.json(result);
+       }
     } catch (err) {
       res.status(500).end();
     }
@@ -159,11 +188,10 @@ app.get('/api/reservations/:id',
 );
 
 app.post('/api/reservations/',
-  /*isLoggedIn,
+  isLoggedIn,
   [
-    check('plane').isInt({min: 0}),
-    check('seats').isLength({min: 2}),
-  ],*/
+    check('plane_id').isInt({min: 1}),
+  ],
   async (req, res) => {
     // Is there any validation error?
     const errors = validationResult(req).formatWith(errorFormatter); // format error message
@@ -171,15 +199,15 @@ app.post('/api/reservations/',
       return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
     }
 
+    console.log(req.user)
     const reservation = {
-      plane: req.body.plane,
-      seats: req.body.seats,
-      user: req.body.user  // user is overwritten with the id of the user that is doing the request and it is logged in
+      "plane_id": req.body.plane,
+      "seats": req.body.seats,
+      "user_id": req.user.id   
     };
 
     try {
       const result = await reservationDao.addReservation(reservation); // NOTE: createFilm returns the new created object
-      console.log(result)
       res.json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` }); 

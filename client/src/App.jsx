@@ -2,27 +2,44 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-import { React, useState, useEffect, useContext } from 'react';
-import { Col, Container, Row, Spinner, Button} from 'react-bootstrap';
+import { React, useState, useEffect } from 'react';
+import { Container, Row, Spinner, Button} from 'react-bootstrap';
 import { BrowserRouter, Routes, Route} from 'react-router-dom';
 
-//import API from './API';
-
+import API from './API';
 import Login from './components/Login';
-
 import Navigation from './components/Navigation';
-import { HomeLayout, PlaneLayout } from './components/PageLayouts';
+import { HomeLayout, PlaneLayout, LoadingLayout} from './components/PageLayouts';
 
 
 function App() {
+
+  const [planes, setPlanes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getPlanes = async () => {
+      try {
+        const planes = await API.readPlanes();
+        setPlanes(planes);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getPlanes();
+  }, []);
+
   return (
     <BrowserRouter>
-      <Navigation/>
+      <Navigation loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser}/>
       <Container className="App" fluid>
         <Routes>
-          <Route path="/" element={<HomeLayout/>}/>
-            <Route path="/login" element={<Login/>}/>
-            <Route path="/plane/:planeId" element={<PlaneLayout/>}/>
+        <Route index element={ loading ? <LoadingLayout /> : <HomeLayout planes={planes}/>}/>
+            <Route path="/login" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser}/>}/>
+            <Route path="/plane/:planeId" element={ loading ? <LoadingLayout /> : <PlaneLayout planes={planes}/>}/>
           <Route/>
         </Routes>
       </Container>

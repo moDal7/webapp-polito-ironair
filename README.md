@@ -28,13 +28,11 @@
 
 # Client side
 
-
 ## React Client Application Routes
 
-- Route `/`: page content and purpose
-- Route `/something/:param`: page content and purpose, param specification
-- ...
-
+- Route `/`: Home page, with all the plane cards and basic plane info.
+- Route `/planes/:planeId`: Specific plane page, with 2D seat visualization and possibility to add or delete a reservation.
+- Route `/login`: Login page, where the user can input credentials to get identified and authorized.
 
 ## Main React Components
 
@@ -48,9 +46,11 @@
 
 ## Example Screenshot
 
-![Screenshot](./img/screenshot.jpg)
+![Screenshot](./images/screenshot.jpg)
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+- lbosso@gmail.com, password: ironairtest 
+- giulia.olivieri@gmail.com, password: ironairtest 
+- daniela.berardino@gmail.com, password: ironairtest
+
