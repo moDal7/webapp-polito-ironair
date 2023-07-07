@@ -135,8 +135,11 @@ app.get('/api/planes/:id',
   }
 );
 
+// GET /api/planes/:id/seats
+// get occupied seats on the id plance
+
 app.get('/api/planes/:id/seats',
-  [ check('id').isInt({min: 0}) ],
+  [ check('id').isInt({min: 1}) ],
   async (req, res) => {
     try {
       const result = await planesDao.getOccupiedSeats(req.params.id);
@@ -187,6 +190,28 @@ app.get('/api/reservations/:id',
   }
 );
 
+
+// GET /api/reservations/user/:id
+// get all reservations of a user
+
+app.get('/api/reservations/user/:id',
+  [ check('id').isInt({min: 0}) ],
+  async (req, res) => {
+    try {
+      const result = await reservationDao.getReservationByUser(req.params.id);
+      if (result.error)
+        res.status(404).json(result);
+      else
+        res.json(result);
+    } catch (err) {
+      res.status(500).end();
+    }
+  }
+);
+
+// POST /api/reservations/
+// create a new reservation
+
 app.post('/api/reservations/',
   isLoggedIn,
   [
@@ -199,9 +224,8 @@ app.post('/api/reservations/',
       return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
     }
 
-    console.log(req.user)
     const reservation = {
-      "plane_id": req.body.plane,
+      "plane_id": req.body.plane_id,
       "seats": req.body.seats,
       "user_id": req.user.id   
     };

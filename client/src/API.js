@@ -52,6 +52,23 @@ async function getOccupiedSeats(pid) {
     }
 }
 
+const getReservationByUser = async (uid) => {
+    const url = APIURL + '/api/reservations/user/' + uid;
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const list = await response.json();
+            return list;
+        } else {
+            const text = await response.text();
+            throw new TypeError(text);
+        }
+    } catch (ex) {
+        // network error
+        throw ex;
+    }
+}
+
 const addReservation = async (reservation) => {
     const url = APIURL + '/api/reservations/';
     try {
@@ -88,7 +105,7 @@ const logIn = async (credentials) => {
       credentials: 'include',
       body: JSON.stringify(credentials),
     });
-    console.log(response)
+
     if(response.ok) {
       const user = await response.json();
       return user;
@@ -125,6 +142,7 @@ const API =
     readPlanes,
     readPlane,
     getOccupiedSeats,
+    getReservationByUser,
     addReservation,
     logIn,
     getUserInfo,

@@ -3,6 +3,7 @@
 const db = require('./database');
 const crypto = require('crypto');
 
+// GET user by email and password
 const getUser = (email, password) => {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT * FROM users WHERE email = ?';
@@ -28,6 +29,7 @@ const getUser = (email, password) => {
   });
 };
 
+// GET user by id
 const getUserById = (id) => {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT * FROM users WHERE id = ?';

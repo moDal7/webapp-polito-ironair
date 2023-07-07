@@ -34,30 +34,78 @@ function HomeLayout(props) {
 
     return (
     <>
-        <Col>
-            <Link to="/plane/0">
-                <PlaneCard className="col-8" plane_num={0} plane={props.planes[0]}/>
-            </Link>
-            <div className="col-4">Total Seats: {props.planes[0]["seats"]}</div>
-            <div className="col-4">Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]}</div>
-        </Col>
-        <Col>
+        <Row>
+            <Col sm={10}>
+                <Link to="/plane/0">
+                    <PlaneCard plane_num={0} plane={props.planes[0]} loggedIn={props.loggedIn}/>
+                </Link>
+            </Col>
+            <Col>
+                <Row>Total Seats: {props.planes[0]["seats"]}</Row>
+                <Row>Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Row>
+            </Col>
+        </Row>
+        <Row>
             <Link to="/plane/1">
-                <PlaneCard className="col-8" plane_num={1} plane={props.planes[1]}/>
+                <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
             </Link>
             <div className="col-4">Total Seats: {props.planes[1]["seats"]}</div>
             <div className="col-4">Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]}</div>
-        </Col>
-        <Col>
+        </Row>
+        <Row>
             <Link to="/plane/2">
-                <PlaneCard className="col-8" plane_num={2} plane={props.planes[2]}/>
+                <PlaneCard  plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
             </Link>
             <div className="col-4">Total Seats: {props.planes[2]["seats"]}</div>
             <div className="col-4">Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]}</div>
-        </Col>
+        </Row>
     </>
   );
 }
+
+function ButtonsAndBottoms(props) {
+
+    return (
+    <>
+        {props.alreadyReserved ?
+        <div>
+            <div>
+                <Button variant="primary" size="lg" onClick={props.handleDeleteReservation}>
+                    Delete Reservation
+                </Button>
+            </div>
+            <div>
+                <h3>You have reserved the following seats: {selectedToString(props.selected)}</h3>
+            </div>
+        </div>
+        :
+        <div>
+            <div>
+                <Button variant="primary" size="lg" onClick={props.handleClick}>
+                    Automatic Seat Selection
+                </Button>
+                <Form>
+                    <Form.Group controlId="formNumSeats">
+                        <Form.Label>Number of Seats</Form.Label>
+                        <Form.Control type="number" placeholder="Enter number of seats" onChange={(e) => props.setNumSeats(e.target.value)}/>
+                    </Form.Group>
+                </Form>
+            </div>
+            <div>
+                <h3>Selected seats: {props.selectedToString}</h3>
+                <Button variant="primary" size="lg" onClick={props.handleAddReservation}>
+                    Confirm Reservation
+                </Button>
+                <Button variant="primary" size="lg" onClick={props.handleResetReservation}>
+                    Reset Reservation
+                </Button>
+            </div>
+        </div>
+        }
+    </>
+    );
+}
+
 
 function PlaneLayout(props) {
 
@@ -65,9 +113,10 @@ function PlaneLayout(props) {
     const [numSeats, setNumSeats] = useState(0);
     const [occupied, setOccupied] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [auto, setAuto] = useState(false);
+    const [alreadyReserved, setAlreadyReserved] = useState(false);
 
     const { planeId } = useParams();
-
     const rows = props.planes[planeId]["num_rows"];
     const columns = props.planes[planeId]["num_columns"];
     
@@ -80,6 +129,15 @@ function PlaneLayout(props) {
             for (let i = 0; i < seats.length; i++) {
                 seats[i] = seats[i]["row"].toString() + seats[i]["column"];
             }
+
+            for (let i = 0; i < props.reservations.length; i++) {
+                if (props.reservations[i]["plane_id"] === Number(planeId)+1) {
+                    let seats = props.reservations[i]["seats"];
+                    setAlreadyReserved(true);
+                    setSelected(seats.split(", "));
+                }
+            }
+
             setOccupied(seats);
             setLoading(false);
           } catch (err) {
@@ -93,6 +151,7 @@ function PlaneLayout(props) {
 
         let auto_selected = automaticSeatSelection(occupied, seats_array, numSeats);
         setSelected(auto_selected);
+        setAuto(true);
     }
 
     const handleAddReservation = () => {
@@ -102,8 +161,19 @@ function PlaneLayout(props) {
             "plane_id": Number(planeId)+1,
             "seats": selectedToString(selected)
         }
-
+        console.log(reservation);
         API.addReservation(reservation);
+    }
+
+    const handleResetReservation = () => {
+        setSelected([]);
+        setAuto(false);
+    }
+
+    const handleDeleteReservation = () => {
+        API.deleteReservationByUser();
+        setSelected([]);
+        setAuto(false);
     }
 
     function automaticSeatSelection(occupied, seats_array, num_seats) {
@@ -124,43 +194,39 @@ function PlaneLayout(props) {
     function selectedToString(selected) {
         let selected_string = "";
         for (let i = 0; i < selected.length; i++) {
-            selected_string += selected[i] + " ";
+            selected_string += selected[i] + ", ";
         }
+        selected_string = selected_string.slice(0, -2);
         return selected_string;
     }
+
+
     
     return (
     <>  
         <Container fluid>
             <Col>
                 <img src={plane_images[planeId]} alt="..." className="rounded-circle planeImage"/>
-                <div className="mx-auto d-block">{planeId}</div>
-                <div className="mx-auto d-block">Total Seats: </div>
-                <div className="mx-auto d-block">Available Seats: </div>
+                <div className="mx-auto d-block">Total Seats: {props.planes[planeId]["seats"]}</div>
+                <div className="mx-auto d-block">Available Seats: {props.planes[planeId]["seats"]-props.planes[planeId]["seats"]} </div>
             </Col>
         </Container>
         <Container fluid>
             <Row>
-                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied}/>
+                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto}/>
             </Row>
+            <Container fluid>
+            {props.loggedIn ? 
             <div>
-                <Button variant="primary" size="lg" onClick={handleClick}>
-                    Automatic Seat Selection
-                </Button>
-                <Form>
-                    <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Number of Seats</Form.Label>
-                        <Form.Control type="number" placeholder="Enter number of seats" onChange={(e) => setNumSeats(e.target.value)}/>
-                    </Form.Group>
-                </Form>
+             <ButtonsAndBottoms alreadyReserved={alreadyReserved} handleClick={handleClick} handleAddReservation={handleAddReservation} 
+             handleResetReservation={handleResetReservation} handleDeleteReservation={handleDeleteReservation} selectedToString={selectedToString(selected)} setNumSeats={setNumSeats}/> 
             </div>
+            :
             <div>
-                <h3>Selected seats: {selected}</h3>
-                <Button variant="primary" size="lg" onClick={handleAddReservation}>
-                    Add Reservation
-                </Button>
-                
+                <h3>Please login to select seats</h3>
             </div>
+            }
+            </Container>
         </Container>
     </>
   );

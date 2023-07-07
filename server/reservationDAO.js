@@ -2,7 +2,7 @@
 
 const db = require('./database');
 
-// get specific reservation from the database
+// GET specific reservation from the database
 const getReservationById = async (id) => {
     const sql = `SELECT * FROM reservations WHERE id = ?`;
 
@@ -18,7 +18,7 @@ const getReservationById = async (id) => {
     })
 }
 
-// get specific reservation from the database
+// GET specific reservation from the database by user id
 const getReservationByUser = async (id) => {
     const sql = `SELECT * FROM reservations WHERE user_id = ?`;
 
@@ -35,8 +35,10 @@ const getReservationByUser = async (id) => {
 }
 
 // check if seats are available at the time of the query run, in case of concurrent requests
+// ausiliary function for addReservation
 const seatCheck = async (seats, plane_id) => {
     let list_seats = seats.replace(/\s+/g, '').split(",");
+    let list_seats_occupied = []
     for (let i=0; i<list_seats.length; i++){
         let seat = list_seats[i];
         let seat_row = seat.slice(0, -1);
@@ -47,15 +49,20 @@ const seatCheck = async (seats, plane_id) => {
                 if(err)
                     reject(err);
                 else{
-                    if(rows.length > 0)
+                    if(rows.length > 0) {
+                    let rows = seat;   
+                    list_seats_occupied.push(rows);
                         resolve(false);
-                    else
+                    }
+                    else 
                         resolve(true);
                 }
             })
-        })
+        });
     }
-    return true;
+    console.log("list_seats_occupied seatCheck");
+    console.log(list_seats_occupied);
+    return list_seats_occupied;
 }
 
 // add a reservation to the database
@@ -65,11 +72,11 @@ const addReservation = async (reservation) => {
         const plane_id = reservation.plane_id;
         const seats = reservation.seats;
         const sql = `INSERT INTO reservations(user_id, plane_id) VALUES(?, ?)`;
-                   
         const check = await seatCheck(seats, plane_id);
         
-    if (check==false){
-        return console.error("Seats not available"); // erro
+    if (check.length>0){
+        console.error("Seats not available") 
+        return check; // erro
 r    }
     else{
         return new Promise ((resolve, reject) => {

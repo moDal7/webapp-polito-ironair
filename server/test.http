@@ -31,9 +31,9 @@ POST http://localhost:3000/api/reservations/ HTTP/1.1
 content-type: application/json
 
 {
-    "plane": 1,
+    "plane_id": 1,
     "seats": "10A, 10B, 10C",
-    "user": 1
+    "user_id": 2
 }
 ###
 
@@ -42,7 +42,6 @@ content-type: application/json
 
 {
     "plane_id": 1,
-    "seat_id": 1
-    "user_id": 1
+    "user_id": 2
 }
 ###

@@ -1,7 +1,13 @@
 'use strict';
 
+// DAO module for accessing users and reservations
+
+// importing the database
+
 const db = require('./database');
 
+
+// GET all planes
 const getAllPlanes = async () => {
     const sql = `SELECT * FROM planes`
     
@@ -18,7 +24,7 @@ const getAllPlanes = async () => {
     })
 }
 
-
+// GET plane by id
 const getPlanesById = async (id) => {
     const sql = `SELECT * FROM planes WHERE id = ?`;
 
@@ -34,9 +40,11 @@ const getPlanesById = async (id) => {
     })
 }
 
+// GET occupied seats by plane id
 const getOccupiedSeats = async (plane_id) => {
     const sql = `SELECT * FROM seats_reserved WHERE plane_id = ?`;
     return new Promise ((resolve, reject) => {
+
         db.database.all(sql, [plane_id], (err, rows) => {
             if(err)
                 reject(err);

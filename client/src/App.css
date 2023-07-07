@@ -5,22 +5,18 @@
 .PlaneCard {
     opacity: 0.6;
     transition: 0.3s;
-    margin: 2rem;
+    margin: 3rem;
     display: flex;
     justify-content: center;
+    text-align: center;
     width: 80%;
 } 
 
-.PlaneCard:hover {
-    transform: scale(1.03);
-    opacity: 1;
-}
 
-.planeImage {
-    width: 50%;
-    height: 50%;
-    justify-content: center;
-    margin: 20px;
+
+.PlaneCard:hover {
+    transform: scale(1.02);
+    opacity: 1;
 }
 
 .Navigation {
@@ -44,7 +40,7 @@
 .SeatImg:hover {
   transform: scale(1.03);
   transition: 0.3s;
-  transition-timing-function: ease-in-out;
+  transition-timing-function: eas
 }
 
 .SeatImgOccupied {

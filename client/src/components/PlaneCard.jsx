@@ -9,20 +9,22 @@ import plane3 from '../images/Boeing737.jpg';
 const plane_images = [plane1, plane2, plane3];
 
 function PlaneCard(props) {
-    
-    const [logged, setLogged] = useState(false);
-    const [reserved, setReserved] = useState(false);
 
     return (
-        <Card className='PlaneCard'>
-                <CardImg width="100%" src={plane_images[props.plane_num]} />
+        <Card className='PlaneCard' style={{'borderRadius' : '25px'}}>
+            <CardImg className="card-img" 
+            style={{'borderTopLeftRadius' : '25px', 
+                    'borderTopRightRadius' : '25px', 
+                    'borderBottomLeftRadius' : '0px', 
+                    'borderBottomRightRadius' : '0px'}} 
+                    src={plane_images[props.plane_num]}/>
             <Card.Body>
                 <Card.Title>{props.plane["plane_name"]}</Card.Title>
                 <Card.Text>
-                    <p className='muted'>{props.plane["type"]}</p>
-                    <p>{props.plane["description"]}</p>
+                    <div className='muted'>{props.plane["type"]}</div>
+                    <div>{props.plane["description"]}</div>
                 </Card.Text>
-                <Button variant={logged ? "primary" : "secondary"} opacity={logged ? "100%" : "70%"}>Add Reservation</Button>
+                {props.loggedIn ? <Button variant="primary">Add/Edit Reservation</Button> : <Button variant="secondary">See Plane Page</Button>}
             </Card.Body>
         </Card>
     )
