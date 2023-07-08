@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from 'react';
 import { Row, Col, Button, Container, Form} from 'react-bootstrap';
-import { Link, useParams, useLocation, Outlet } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import plane1 from '../images/ATR72.jpg'; 
 import plane2 from '../images/A220-100.jpg';
@@ -9,6 +9,7 @@ import plane3 from '../images/Boeing737.jpg';
 import PlaneCard from './PlaneCard';
 import SeatVisualization from './SeatVisualization';
 import API from '../API';
+
 
 const plane_images = [plane1, plane2, plane3];
 
@@ -29,35 +30,42 @@ function genSeatsArray(rows, columns) {
 }
 
 
-
 function HomeLayout(props) {
 
     return (
     <>
         <Row>
-            <Col sm={10}>
-                <Link to="/plane/0">
+            <Col sm={7}>
+                <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={0} plane={props.planes[0]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col>
-                <Row>Total Seats: {props.planes[0]["seats"]}</Row>
-                <Row>Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Row>
+            <Col sm={5} className='planeInfo'>
+                <h2>Total Seats: {props.planes[0]["seats"]}</h2>
+                <h2>Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </h2>
             </Col>
         </Row>
         <Row>
-            <Link to="/plane/1">
-                <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
-            </Link>
-            <div className="col-4">Total Seats: {props.planes[1]["seats"]}</div>
-            <div className="col-4">Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]}</div>
+            <Col sm={7}>
+                <Link className="noHyperTextLink" to="/plane/1">
+                    <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
+                </Link>
+            </Col>
+            <Col sm={5} className='planeInfo'>
+                <h2>Total Seats: {props.planes[1]["seats"]}</h2>
+                <h2>Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </h2>
+            </Col>
         </Row>
         <Row>
-            <Link to="/plane/2">
-                <PlaneCard  plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
-            </Link>
-            <div className="col-4">Total Seats: {props.planes[2]["seats"]}</div>
-            <div className="col-4">Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]}</div>
+            <Col sm={7}>
+                <Link className="noHyperTextLink" to="/plane/2">
+                    <PlaneCard plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
+                </Link>
+            </Col>
+            <Col sm={5} className='planeInfo'>
+                <h2>Total Seats: {props.planes[2]["seats"]}</h2>
+                <h2>Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </h2>
+            </Col>
         </Row>
     </>
   );
@@ -66,16 +74,13 @@ function HomeLayout(props) {
 function ButtonsAndBottoms(props) {
 
     return (
-    <>
+    <Container fluid>
         {props.alreadyReserved ?
         <div>
             <div>
                 <Button variant="primary" size="lg" onClick={props.handleDeleteReservation}>
                     Delete Reservation
                 </Button>
-            </div>
-            <div>
-                <h3>You have reserved the following seats: {selectedToString(props.selected)}</h3>
             </div>
         </div>
         :
@@ -87,7 +92,7 @@ function ButtonsAndBottoms(props) {
                 <Form>
                     <Form.Group controlId="formNumSeats">
                         <Form.Label>Number of Seats</Form.Label>
-                        <Form.Control type="number" placeholder="Enter number of seats" onChange={(e) => props.setNumSeats(e.target.value)}/>
+                        <Form.Control  style={props.autoMissingInput ? {'border-color': 'orange'} : {'border': 'faded'}}type="number" placeholder="Enter number of seats" onChange={(e) => props.setNumSeats(e.target.value)}/>
                     </Form.Group>
                 </Form>
             </div>
@@ -102,25 +107,38 @@ function ButtonsAndBottoms(props) {
             </div>
         </div>
         }
-    </>
+    </Container>
     );
 }
 
 
 function PlaneLayout(props) {
 
+    const { planeId } = useParams();
+
     const [selected, setSelected] = useState([]);  
-    const [numSeats, setNumSeats] = useState(0);
+    const [numSeats, setNumSeats] = useState(false);
     const [occupied, setOccupied] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [auto, setAuto] = useState(false);
     const [alreadyReserved, setAlreadyReserved] = useState(false);
-
-    const { planeId } = useParams();
+    const [seatsAlreadyReserved, setSeatsAlreadyReserved] = useState(false); 
+    const [problemSeats, setProblemSeats] = useState([]);
+    const [autoMissingInput, setAutoMissingInput] = useState(false);
+    const [currentReservation, setCurrentReservation] = useState(null);
+    const [planeOccupiedSeats, setplaneOccupiedSeats] = useState(props.planes[planeId]["occupied_seats"]);
     const rows = props.planes[planeId]["num_rows"];
     const columns = props.planes[planeId]["num_columns"];
     
     const seats_array = genSeatsArray(rows, columns);
+    
+    useEffect(() => {
+        for(let i=0; i<props.reservations.length; i++) {
+            if (props.reservations[i]["plane_id"] == Number(planeId)) {
+                setSeatsAlreadyReserved(true);
+                setCurrentReservation(props.reservations[i]);
+            }
+        };
+    } ,[]);
 
     useEffect(() => {
         const getPlaneOccupiedSeats = async (planeId) => {
@@ -131,21 +149,32 @@ function PlaneLayout(props) {
             }
 
             for (let i = 0; i < props.reservations.length; i++) {
-                if (props.reservations[i]["plane_id"] === Number(planeId)+1) {
-                    let seats = props.reservations[i]["seats"];
+                if (props.reservations[i]["plane_id"] === Number(planeId)) {
                     setAlreadyReserved(true);
-                    setSelected(seats.split(", "));
                 }
             }
-
             setOccupied(seats);
-            setLoading(false);
+            props.setLoading(false);
           } catch (err) {
             console.log(err);
           }
         };
-        getPlaneOccupiedSeats(planeId+1);
+        getPlaneOccupiedSeats(planeId);
       }, []);
+
+      useEffect(() => {
+        const getPlaneOccupiedSeats = async (planeId) => {
+            try {
+                const plane = await API.readPlane(planeId);
+                setplaneOccupiedSeats(plane["occupied_seats"]);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        getPlaneOccupiedSeats(planeId);
+        }, [alreadyReserved]);
+
+    
 
     const handleClick = () => {
 
@@ -157,13 +186,25 @@ function PlaneLayout(props) {
     const handleAddReservation = () => {
         
         let reservation = {
-            "user_id": 1,
-            "plane_id": Number(planeId)+1,
+            "user_id": props.user_id,
+            "plane_id": Number(planeId),
             "seats": selectedToString(selected)
         }
-        console.log(reservation);
-        API.addReservation(reservation);
+        
+        const verifyAddReservation = async (reservation) => {
+            try {
+                const res = await API.addReservation(reservation); 
+                setAlreadyReserved(true);
+                setSelected([]);
+                setCurrentReservation(reservation)
+              
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        verifyAddReservation(reservation);
     }
+
 
     const handleResetReservation = () => {
         setSelected([]);
@@ -171,12 +212,21 @@ function PlaneLayout(props) {
     }
 
     const handleDeleteReservation = () => {
-        API.deleteReservationByUser();
+        let res_id = currentReservation["id"];
+        API.deleteReservation(res_id);
         setSelected([]);
         setAuto(false);
+        setAlreadyReserved(false);
     }
 
     function automaticSeatSelection(occupied, seats_array, num_seats) {
+        setSelected([]);
+
+        if (num_seats === false) {
+            setAutoMissingInput(true);
+        } else {
+            setAutoMissingInput(false);
+        }
 
         let t_seats = seats_array[0].map((_, colIndex) => seats_array.map(row => row[colIndex]));
         let selected_seats = []
@@ -205,28 +255,29 @@ function PlaneLayout(props) {
     return (
     <>  
         <Container fluid>
-            <Col>
-                <img src={plane_images[planeId]} alt="..." className="rounded-circle planeImage"/>
-                <div className="mx-auto d-block">Total Seats: {props.planes[planeId]["seats"]}</div>
-                <div className="mx-auto d-block">Available Seats: {props.planes[planeId]["seats"]-props.planes[planeId]["seats"]} </div>
-            </Col>
-        </Container>
-        <Container fluid>
-            <Row>
-                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto}/>
-            </Row>
             <Container fluid>
+                <img src={plane_images[planeId]} alt="..." className="planeImage"/>
+            </Container>
+            <Container>
+                <div className="mx-auto d-block">Total Seats: {props.planes[planeId]["seats"]}</div>
+                <div className="mx-auto d-block">Available Seats: {planeOccupiedSeats} </div>
+            </Container>
+            <Container fluid>
+                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto} problemSeats={problemSeats} alreadyReserved={alreadyReserved}/>
+            </Container>
             {props.loggedIn ? 
             <div>
-             <ButtonsAndBottoms alreadyReserved={alreadyReserved} handleClick={handleClick} handleAddReservation={handleAddReservation} 
-             handleResetReservation={handleResetReservation} handleDeleteReservation={handleDeleteReservation} selectedToString={selectedToString(selected)} setNumSeats={setNumSeats}/> 
+                <ButtonsAndBottoms alreadyReserved={alreadyReserved} handleClick={handleClick} handleAddReservation={handleAddReservation} 
+             handleResetReservation={handleResetReservation} handleDeleteReservation={handleDeleteReservation} selectedToString={selectedToString(selected)} 
+             setNumSeats={setNumSeats} autoMissingInput={autoMissingInput} setAutoMissingInput={setAutoMissingInput}/> 
             </div>
             :
             <div>
                 <h3>Please login to select seats</h3>
             </div>
+            
+            
             }
-            </Container>
         </Container>
     </>
   );

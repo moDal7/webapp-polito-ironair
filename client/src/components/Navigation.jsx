@@ -21,21 +21,19 @@ function Navigation(props) {
             <span className="navbar-brand-text title">IRONAIR</span>
           </Navbar.Brand>
         </Link>
-        <Link to="/reservation">
           <Navbar.Brand>
             <i className="bi bi-airplane-fill icon-size"/>
           </Navbar.Brand>
-        </Link>
         {props.loggedIn ? 
         <Navbar.Brand>
           <i className="bi bi-person-circle icon-size"/>
           <span className="navbar-brand-text" >Ciao, {props.user["name"]} </span>
-          <Button className="btn-secondary" onClick={handleLogout}>Logout</Button>
+          <Button className="Logout" onClick={handleLogout}>Logout</Button>
         </Navbar.Brand> : 
         <Link to="/login">
         <Navbar.Brand>
           <i className="bi bi-box-arrow-in-right"/>
-          <span className="navbar-brand-text">Login</span>
+          <span className="navbar-brand-text Login">Login</span>
         </Navbar.Brand>
       </Link>
         }

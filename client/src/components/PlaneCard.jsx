@@ -11,8 +11,8 @@ const plane_images = [plane1, plane2, plane3];
 function PlaneCard(props) {
 
     return (
-        <Card className='PlaneCard' style={{'borderRadius' : '25px'}}>
-            <CardImg className="card-img" 
+        <Card className='PlaneCard' style={{'borderRadius' : '25px', }}>
+            <CardImg
             style={{'borderTopLeftRadius' : '25px', 
                     'borderTopRightRadius' : '25px', 
                     'borderBottomLeftRadius' : '0px', 

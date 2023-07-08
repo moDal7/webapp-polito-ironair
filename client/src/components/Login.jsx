@@ -29,6 +29,9 @@ function Login(props){
             props.setLoggedIn(true);
             props.setUser(userInfo);
 
+            const reservations = await API.getReservationByUser();
+            props.setReservations(reservations);
+
             setGreet(true);
             setTimeout(() => {navigate('/');}, 2000);
 

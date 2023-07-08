@@ -215,7 +215,7 @@ app.get('/api/reservations/user/:id',
 app.post('/api/reservations/',
   isLoggedIn,
   [
-    check('plane_id').isInt({min: 1}),
+    check('plane_id').isInt({min: 0}),
   ],
   async (req, res) => {
     // Is there any validation error?
@@ -229,6 +229,14 @@ app.post('/api/reservations/',
       "seats": req.body.seats,
       "user_id": req.user.id   
     };
+
+    try {
+      const check = await reservationDao.seatCheck(reservation.seats, reservation.plane_id);
+      if (check.length>0)
+        return res.status(422).json({ occupied: check, error: "Some seats are not available"});
+    } catch (err) {
+      res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` });
+    }
 
     try {
       const result = await reservationDao.addReservation(reservation); // NOTE: createFilm returns the new created object
@@ -248,8 +256,8 @@ app.delete('/api/reservations/:id',
   async (req, res) => {
     try {
       // NOTE: if there is no film with the specified id, the delete operation is considered successful.
-      const result = await reservationDao.deleteReservation(req.user.id, req.params.id);
-      if (result == null)
+      const result = await reservationDao.deleteReservation(req.params.id);
+      if (result == 200)
         return res.status(200).json({}); 
       else
         return res.status(404).json(result);

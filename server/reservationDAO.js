@@ -38,32 +38,24 @@ const getReservationByUser = async (id) => {
 // ausiliary function for addReservation
 const seatCheck = async (seats, plane_id) => {
     let list_seats = seats.replace(/\s+/g, '').split(",");
-    let list_seats_occupied = []
-    for (let i=0; i<list_seats.length; i++){
-        let seat = list_seats[i];
-        let seat_row = seat.slice(0, -1);
-        let seat_column = seat.slice(-1);
-        const sql = `SELECT * FROM seats_reserved WHERE plane_id = ? AND row = ? AND column = ?`;
-        return new Promise ((resolve, reject) => {
-            db.database.all(sql, [plane_id, seat_row, seat_column], (err, rows) => {
-                if(err)
-                    reject(err);
-                else{
-                    if(rows.length > 0) {
-                    let rows = seat;   
-                    list_seats_occupied.push(rows);
-                        resolve(false);
-                    }
-                    else 
-                        resolve(true);
-                }
-            })
-        });
-    }
-    console.log("list_seats_occupied seatCheck");
-    console.log(list_seats_occupied);
-    return list_seats_occupied;
+    const sql = `SELECT * FROM seats_reserved WHERE plane_id = ?`;
+    return new Promise ((resolve, reject) => {
+        db.database.all(sql, [plane_id], (err, rows) => {
+            if(err)
+                reject(err);
+            else {
+                let seats = rows; 
+                let seats_transformed = [];
+                seats.forEach((seat) => {
+                    seats_transformed.push(seat.row + seat.column);
+                });
+                let seats_occuppied = list_seats.filter((seat) => { return seats_transformed.includes(seat)});
+                resolve(seats_occuppied);
+            }
+        })
+    });
 }
+
 
 // add a reservation to the database
 const addReservation = async (reservation) => {
@@ -72,13 +64,7 @@ const addReservation = async (reservation) => {
         const plane_id = reservation.plane_id;
         const seats = reservation.seats;
         const sql = `INSERT INTO reservations(user_id, plane_id) VALUES(?, ?)`;
-        const check = await seatCheck(seats, plane_id);
-        
-    if (check.length>0){
-        console.error("Seats not available") 
-        return check; // erro
-r    }
-    else{
+         
         return new Promise ((resolve, reject) => {
             db.database.run(sql, [user_id, plane_id], function(err) {
                 if(err) {
@@ -86,68 +72,91 @@ r    }
                 }
                 else {
                     let reservation_id = this.lastID;
-                    const sql2 = `UPDATE users SET has_reserved = 1 WHERE id = ?`;
-                    db.database.run(sql2, [user_id], function(err) {
-                        if(err) {
-                            reject(err);
-                        }
-                        else{
-                            let list_seats = seats.replace(/\s+/g, '').split(",");
-                            let seats_num = list_seats.length;
-                            const sql3 = `UPDATE planes SET occupied_seats = occupied_seats + ? WHERE id = ?`;
-                            db.database.run(sql3, [seats_num, plane_id], function(err) {
-                                if(err) {
-                                    reject(err);
-                                }
-                                else{
-                                    for (let i=0; i<list_seats.length; i++){
-                                        let seat = list_seats[i];
-                                        let seat_row = seat.slice(0, -1);
-                                        let seat_column = seat.slice(-1);
-                                        const sql4 = `INSERT INTO seats_reserved(plane_id, row, column, reservation_id) VALUES(?, ?, ?, ?)`;
-                                        db.database.run(sql4, [plane_id, seat_row, seat_column, reservation_id], function(err) {
-                                            if(err) {
-                                                reject(err);
-                                            }   
-                                            else {
-                                                resolve(this.lastID);
-                                            }
-                                        })
-                                    };
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        })
+                        let list_seats = seats.replace(/\s+/g, '').split(",");
+                        let seats_num = list_seats.length;
+                        const sql3 = `UPDATE planes SET occupied_seats = occupied_seats + ? WHERE id = ?`;
+                        db.database.run(sql3, [seats_num, plane_id], function(err) {
+                            if(err) {
+                                reject(err);
+                            }
+                            else{
+                                for (let i=0; i<list_seats.length; i++){
+                                    let seat = list_seats[i];
+                                    let seat_row = seat.slice(0, -1);
+                                    let seat_column = seat.slice(-1);
+                                    const sql4 = `INSERT INTO seats_reserved(plane_id, row, column, reservation_id) VALUES(?, ?, ?, ?)`;
+                                    db.database.run(sql4, [plane_id, seat_row, seat_column, reservation_id], function(err) {
+                                        if(err) {
+                                            reject(err);
+                                        }   
+                                        else {
+                                            resolve(this.lastID);
+                                        }
+                                    })
+                                };
+                            }
+                        });
+                    }
+                });
+            }
+        )
     }
+
+const numSeats = async (reservation_id) => {
+    const sql = `SELECT COUNT (*) FROM seats_reserved WHERE reservation_id = ?`;
+    return new Promise ((resolve, reject) => {
+        db.database.get(sql, [reservation_id], (err, rows) => {
+            if(err)
+                reject(err);
+            else{
+                let num_seats = rows;
+                resolve(num_seats);
+            }
+        })
+    })
 }
 
+const numOccupiedSeats = async (plane_id) => { 
+    const sql = `SELECT occupied_seats FROM planes WHERE id = ?`;
+    return new Promise ((resolve, reject) => {
+        db.database.get(sql, [plane_id], (err, rows) => {
+            if(err)
+                reject(err);
+            else{
+                let num_seats = rows;
+                resolve(num_seats);
+            }
+        })
+    })
+}
 
-const deleteReservation = async (reservation_id, user_id) => {
+const deleteReservation = async (reservation_id) => {
+    const reservation = await getReservationById(reservation_id);
+    const plane_id = reservation[0].plane_id;
+    const num_seats = await numSeats(reservation_id).then((result) => {return result['COUNT (*)']});
+    const num_occupied_seats = await numOccupiedSeats(plane_id).then((result) => {return result.occupied_seats});
+    const new_num_occupied_seats = num_occupied_seats - num_seats;
+
     const sql = `DELETE FROM reservations WHERE id = ?`;
-
     return new Promise ((resolve, reject) => {
         db.database.run(sql, [reservation_id], function(err) {
             if(err) {
                 reject(err);
             }
             else {
-                sql2 = `UPDATE users SET has_reserved = 0, WHERE id = ?`;
-                db.database.run(sql2, [user_id], function(err) {
+                const sql2 = `DELETE FROM seats_reserved WHERE reservation_id = ?`;
+                db.database.run(sql2, [reservation_id], function(err) {
                     if(err) {
                         reject(err);
                     }
                     else{
-                        sql3 = `UPDATE planes SET seats = seats + 1 WHERE id = ?`;
-                        db.database.run(sql3, [plane_id], function(err) {
+                        const sql3 = `UPDATE planes SET occupied_seats = ? WHERE id = ?`;
+                        db.database.run(sql3, [new_num_occupied_seats, plane_id], function(err) {
                             if(err) {
                                 reject(err);
                             }
                             else {
-                                resolve(this.lastID);
-              
+                                resolve(200);
                             }
                         });
                     }
@@ -158,4 +167,4 @@ const deleteReservation = async (reservation_id, user_id) => {
 }
 
 
-module.exports = { getReservationById, getReservationByUser, addReservation, deleteReservation};
+module.exports = { getReservationById, getReservationByUser, addReservation, deleteReservation, seatCheck};

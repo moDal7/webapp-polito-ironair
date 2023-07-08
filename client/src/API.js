@@ -36,6 +36,7 @@ async function readPlane(pid) {
 }
 
 async function getOccupiedSeats(pid) {
+    pid = pid[0];
     const url = APIURL + '/api/planes/' + pid + '/seats';
     try {
         const response = await fetch(url);
@@ -84,6 +85,29 @@ const addReservation = async (reservation) => {
         if (response.ok) {
             const list = await response.json();
             return list;
+        } else if (response.status === 422) {
+            const seats_err = await response.json();
+            return seats_err;
+        } else {
+            const text = await response.text();
+            throw new TypeError(text);
+        }
+    } catch (ex) {
+        // network error
+        throw ex;
+    }
+}
+
+const deleteReservation = async (rid) => {
+    const url = APIURL + '/api/reservations/' + rid;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const code= await response.json();
+            return code;
         } else {
             const text = await response.text();
             throw new TypeError(text);
@@ -144,6 +168,7 @@ const API =
     getOccupiedSeats,
     getReservationByUser,
     addReservation,
+    deleteReservation,
     logIn,
     getUserInfo,
     logOut
