@@ -1,0 +1,50 @@
+# This file could be used for testing the API with Visual Studio Code
+
+## Execute Log In
+POST http://localhost:3000/api/sessions HTTP/1.1
+content-type: application/json
+
+{
+    "username": "lbosso@gmail.com",
+    "password": "ironairtest"
+}
+###
+
+## Checking if user is still logged-in.
+GET http://localhost:3000/api/sessions/current HTTP/1.1
+###
+
+## Logging out.
+DELETE  http://localhost:3000/api/sessions/current HTTP/1.1
+###
+
+## Getting all planes.
+GET http://localhost:3000/api/planes/ HTTP/1.1
+###
+
+## Getting the plane with the code in the parameter.
+GET http://localhost:3000/api/planes/1 HTTP/1.1
+###
+
+## Getting the seats reserved in the plane with the code in the parameter.
+GET http://localhost:3000/api/planes/1/seats HTTP/1.1
+###
+
+## Getting the reservation by userid
+GET http://localhost:3000/api/reservations/user/2 HTTP/1.1
+###
+
+## Getting the plane with the code in the parameter.
+POST http://localhost:3000/api/reservations/ HTTP/1.1
+content-type: application/json
+
+{
+    "plane_id": 0,
+    "seats": "10A, 10B, 10C",
+    "user_id": 2
+}
+###
+
+DELETE http://localhost:3000/api/reservations/3 HTTP/1.1
+content-type: application/json
+###
