@@ -47,7 +47,7 @@ VALUES(000001, 'Giulia', 'Olivieri', 'giulia.olivieri@gmail.com', '75bdb0db0ed0b
       (000004, 'Daniela', 'Berardino', 'daniela.berardino@gmail.com', '616567eb269368d7f0c82e12de072540e201bce8b0e00b2d1cd5be9f30b96638', '4f5g6h7j');
 
 INSERT INTO planes(id, plane_name, type, description, seats, num_rows, num_columns, occupied_seats)
-VALUES(0, 'ATR72', 'Local', 'Our local and smallest option, with up to 60 passengers.', 60, 15, 4, 2),
+VALUES(0, 'ATR72', 'Local', 'Our local and smallest option, with up to 60 passengers.', 60, 15, 4, 4),
       (1, 'A220-100', 'Regional', 'With up to 100 passengers, our regional option is more comfortable for longer flights.', 100, 20, 5, 2),
       (2, 'Boeing 737-7', 'International', 'Our biggest aircraft, for our longest flight.', 150, 25, 6, 3);
 
@@ -64,6 +64,6 @@ VALUES(1, 0, 3, 'B', 1),
       (3, 1, 2, 'A', 2),
       (4, 1, 1, 'C', 3),
       (5, 2, 2, 'A', 4),
-      (6, 2, 12, 'A', 5),
-      (7, 2, 12, 'B', 5);
+      (6, 0, 12, 'A', 5),
+      (7, 0, 12, 'B', 5);
       

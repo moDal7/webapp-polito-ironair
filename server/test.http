@@ -45,6 +45,6 @@ content-type: application/json
 }
 ###
 
-DELETE http://localhost:3000/api/reservations/3 HTTP/1.1
+DELETE http://localhost:3000/api/reservations/5 HTTP/1.1
 content-type: application/json
 ###

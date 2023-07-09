@@ -12,6 +12,7 @@ function Navigation(props) {
     await API.logOut();
     props.setLoggedIn(false);
     props.setUser(null);
+    props.setReservations([]);
   };
 
   return (

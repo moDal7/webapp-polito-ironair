@@ -171,10 +171,25 @@ function PlaneLayout(props) {
                 console.log(err);
             }
         };
-        getPlaneOccupiedSeats(planeId);
-        }, [alreadyReserved]);
 
-    
+        const getOccupiedSeats = async (planeId) => {
+            try {
+              const seats = await API.getOccupiedSeats(planeId);
+                for (let i = 0; i < seats.length; i++) {
+                  seats[i] = seats[i]["row"].toString() + seats[i]["column"];
+              }
+                setOccupied(seats);
+                props.setLoading(false);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+        
+        getPlaneOccupiedSeats(planeId);
+        getOccupiedSeats(planeId);
+        setSelected([]);
+        setAuto(false);
+        }, [alreadyReserved]);
 
     const handleClick = () => {
 
@@ -186,7 +201,7 @@ function PlaneLayout(props) {
     const handleAddReservation = () => {
         
         let reservation = {
-            "user_id": props.user_id,
+            "user_id": props.user.id,
             "plane_id": Number(planeId),
             "seats": selectedToString(selected)
         }
@@ -194,17 +209,35 @@ function PlaneLayout(props) {
         const verifyAddReservation = async (reservation) => {
             try {
                 const res = await API.addReservation(reservation); 
-                setAlreadyReserved(true);
-                setSelected([]);
-                setCurrentReservation(reservation)
-              
+                if(!res.hasOwnProperty("error")) {
+                    const reservations = await API.getReservationByUser(props.user.id);
+                    for(let i=0; i<reservations.length; i++) {
+                        if (reservations[i]["plane_id"] == Number(planeId)) {
+                            setSeatsAlreadyReserved(true);
+                            setCurrentReservation(reservations[i]);
+                        }
+                    };
+
+                    setAlreadyReserved(true);
+                    setOccupied([...occupied, ...selected]);
+                    setSelected([]);
+                    props.setReservations([...props.reservations, reservation]);
+
+                } else {
+                    setProblemSeats(res["occupied"]);
+                    console.log(res["occupied"])
+                    setTimeout(() => {
+                        setProblemSeats([]);
+                    }, 5000);
+                    console.log(problemSeats)
+                }
+
             } catch (err) {
                 console.log(err);
             }
         };
         verifyAddReservation(reservation);
     }
-
 
     const handleResetReservation = () => {
         setSelected([]);
@@ -214,9 +247,38 @@ function PlaneLayout(props) {
     const handleDeleteReservation = () => {
         let res_id = currentReservation["id"];
         API.deleteReservation(res_id);
+        props.setReservations(props.reservations.filter(reservation => reservation["id"] !== res_id));
+
+        const getPlaneOccupiedSeats = async (planeId) => {
+            try {
+                const plane = await API.readPlane(planeId);
+                setplaneOccupiedSeats(plane["occupied_seats"]);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+
+        const getOccupiedSeats = async (planeId) => {
+            try {
+                const seats = await API.getOccupiedSeats(planeId);
+                for (let i = 0; i < seats.length; i++) {
+                    seats[i] = seats[i]["row"].toString() + seats[i]["column"];
+                }
+                setOccupied(seats);
+                props.setLoading(false);
+            } catch (err) {
+                console.log(err);
+            }
+        };
+
+        props.setLoading(true);
+        getPlaneOccupiedSeats(planeId);
+        getOccupiedSeats(planeId);
         setSelected([]);
         setAuto(false);
+        setCurrentReservation(null);
         setAlreadyReserved(false);
+        props.setLoading(false);
     }
 
     function automaticSeatSelection(occupied, seats_array, num_seats) {
@@ -249,8 +311,6 @@ function PlaneLayout(props) {
         selected_string = selected_string.slice(0, -2);
         return selected_string;
     }
-
-
     
     return (
     <>  

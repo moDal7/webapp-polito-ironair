@@ -11,9 +11,9 @@ function Rows(props) {
       return (
         <>
           {props.occupied.includes(seat) ? 
-          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={false} loggedIn={props.loggedIn} auto={props.auto}/>
+          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={false} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved}/>
           :
-          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={true} loggedIn={props.loggedIn} auto={props.auto}/>
+          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={true} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved}/>
           }
         </>
       )
@@ -52,14 +52,14 @@ function Seat(props) {
     }
 
     useEffect(() => {
-      if (props.loggedIn && !props.alreadyReserved) {
+       if (props.loggedIn) {
+        if(!props.alreadyReserved) {
         setSelectable(true);
-      } else if (props.loggedIn && props.alreadyReserved) {
-        setSelectable(false);
-      } else if (!props.loggedIn) {
+      } else {
         setSelectable(false);
       }
-    }, [props.loggedIn, props.alreadyReserved] );
+    }
+    }, [props.loggedIn, props.alreadyReserved]);
       
 
     useEffect(() => {
@@ -99,7 +99,7 @@ function Seat(props) {
               :
               <img src={props.occupied ? seat : seat_full} className={props.occupied ? 'SeatImg' : 'SeatImgOccupied'}/>
           }
-              <div>{props.code}</div>
+              <div style={{'text-align': 'center'}}>{props.code}</div>
         </Col> 
       }
       </>

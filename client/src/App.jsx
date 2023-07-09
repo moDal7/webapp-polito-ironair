@@ -39,12 +39,12 @@ function App() {
 
   return (
     <Router>
-      <Navigation loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser}/>
+      <Navigation loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser} setReservations={setReservations}/>
       <Container className="App" fluid>
         <Routes>
         <Route index element={ loading ? <LoadingLayout /> : <HomeLayout planes={planes} loggedIn={loggedIn} loading={loading} setLoading={setLoading}/>}/>
             <Route path="/login" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser} setReservations={setReservations} loading={loading} setLoading={setLoading}/>}/>
-            <Route path="/plane/:planeId" element={ loading ? <LoadingLayout /> : <PlaneLayout planes={planes} reservations={reservations} loggedIn={loggedIn} loading={loading} setLoading={setLoading}/>}/>
+            <Route path="/plane/:planeId" element={ loading ? <LoadingLayout /> : <PlaneLayout planes={planes} reservations={reservations} setReservations={setReservations} loggedIn={loggedIn} loading={loading} setLoading={setLoading} user={user}/>}/>
           <Route/>
         </Routes>
       </Container>

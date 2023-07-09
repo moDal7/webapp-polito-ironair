@@ -121,8 +121,12 @@ app.delete(PREFIX+'/sessions/current', (req, res) => {
 // get plane by id
 
 app.get('/api/planes/:id',
-  [ check('id').isInt({min: 0}) ],
+  [ check('id').isInt({min: 0, max:2}) ],
   async (req, res) => {
+    const errors = validationResult(req).formatWith(errorFormatter); // format error message
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ error: errors.array().join(", ") }); // error message is a single string with all error joined together
+    }
     try {
       const result = await planesDao.getPlanesById(req.params.id);
       if (result.error)
@@ -158,6 +162,7 @@ app.get('/api/planes/:id/seats',
 
 app.get('/api/planes/',
   async (req, res) => {
+    
     try {
       const result = await planesDao.getAllPlanes();
       if (result.error) {
@@ -202,7 +207,7 @@ app.get('/api/reservations/user/:id',
       if (result.error)
         res.status(404).json(result);
       else
-        res.json(result);
+        res.status(200).json(result);
     } catch (err) {
       res.status(500).end();
     }
@@ -240,7 +245,7 @@ app.post('/api/reservations/',
 
     try {
       const result = await reservationDao.addReservation(reservation); // NOTE: createFilm returns the new created object
-      res.json(result);
+      res.status(200).json(result);
     } catch (err) {
       res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` }); 
     }

@@ -27,7 +27,7 @@ const getReservationByUser = async (id) => {
             if(err)
                 reject(err);
             else{
-                let reservations =  rows;
+                let reservations = rows;
                 resolve(reservations);
             }
         })
