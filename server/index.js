@@ -140,7 +140,7 @@ app.get('/api/planes/:id',
 );
 
 // GET /api/planes/:id/seats
-// get occupied seats on the id plance
+// get occupied seats on the id plane
 
 app.get('/api/planes/:id/seats',
   [ check('id').isInt({min: 1}) ],

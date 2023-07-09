@@ -36,21 +36,38 @@
 }
 
 .planeImage {
-  max-width: 600px;
+  max-width: 450px;
   height: 100%;
   align-items: center;
   justify-content: center;
-  display: flex;
-  margin: 2rem;
+  text-align: center;
+  margin: rem;
+  padding: 0.5rem;
   border-radius: 25px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
 .planeInfo {
   text-align: center;
-  padding: 1rem;
-  vertical-align: center;
+  padding: 5rem;
+  padding-bottom: 2rem;
+  padding-left: 2rem;
   color: #666fff;
+  display: flex;
+  justify-content: center;
+}
+
+.SeatsInfo {
+  border-style: solid;
+  border-radius: 25px;
+  border-color: lightgray;
+  padding: 2rem;
+  border-width: 1px;
+  font-size: x-large;
+  margin: 10rem;
 }
 
 .Login {
@@ -72,12 +89,26 @@
   border-style: solid;
   padding: 0.4rem;
 }
-
+.ImagePlanePage {
+  align-items: center;
+  display: block;
+  margin: 2rem;
+  border-radius: 25px;
+}
 .SeatImg {
     width: 40px;
     height: 40px;
     margin: 2px;
     filter: invert(52%) sepia(81%) saturate(6765%) hue-rotate(221deg) brightness(105%) contrast(101%);;
+}
+
+.SeatImgHome {
+  max-height: 100px;
+  max-width: 100px;
+  margin: 40px;
+  align-items: center;
+  justify-content: center;
+  filter: invert(52%) sepia(81%) saturate(6765%) hue-rotate(221deg) brightness(105%) contrast(101%);;
 }
 
 .SeatImg:hover {
@@ -99,11 +130,23 @@
   justify-content: center;
   align-items: center;
   margin: 2rem;
+  margin-left: auto;
+  margin-right: auto;
   border: blue;
   border-width: 2px;
   border-style: solid;
   padding: 10px;
   border-radius: 25px;
+  box-sizing: content-box;
+  width: fit-content;
+  block-size: fit-content;
+}
+
+.homeCols {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: center;
 }
 
 /* Styles related to NavBar */

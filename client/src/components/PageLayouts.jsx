@@ -2,13 +2,16 @@ import { React, useState, useEffect } from 'react';
 import { Row, Col, Button, Container, Form} from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 
+
 import plane1 from '../images/ATR72.jpg'; 
 import plane2 from '../images/A220-100.jpg';
 import plane3 from '../images/Boeing737.jpg';
 
+
 import PlaneCard from './PlaneCard';
 import SeatVisualization from './SeatVisualization';
 import API from '../API';
+
 
 
 const plane_images = [plane1, plane2, plane3];
@@ -35,36 +38,44 @@ function HomeLayout(props) {
     return (
     <>
         <Row>
-            <Col sm={7}>
+            <Col className="homeCols" sm={9}>
                 <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={0} plane={props.planes[0]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={5} className='planeInfo'>
-                <h2>Total Seats: {props.planes[0]["seats"]}</h2>
-                <h2>Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </h2>
+            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+                <Row>
+                    <Col className="SeatsInfo">Total Seats: {props.planes[0]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Col>
+                </Row>
             </Col>
         </Row>
+    
         <Row>
-            <Col sm={7}>
-                <Link className="noHyperTextLink" to="/plane/1">
+            <Col className="homeCols" sm={9}>
+                <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={5} className='planeInfo'>
-                <h2>Total Seats: {props.planes[1]["seats"]}</h2>
-                <h2>Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </h2>
+            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+                <Row>
+                    <Col className="SeatsInfo">Total Seats: {props.planes[1]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </Col>
+                </Row>
             </Col>
         </Row>
+        
         <Row>
-            <Col sm={7}>
-                <Link className="noHyperTextLink" to="/plane/2">
+            <Col className="homeCols" sm={9}>
+                <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={5} className='planeInfo'>
-                <h2>Total Seats: {props.planes[2]["seats"]}</h2>
-                <h2>Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </h2>
+            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+                <Row>
+                    <Col className="SeatsInfo">Total Seats: {props.planes[2]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </Col>
+                </Row>
             </Col>
         </Row>
     </>
@@ -121,7 +132,6 @@ function PlaneLayout(props) {
     const [occupied, setOccupied] = useState([]);
     const [auto, setAuto] = useState(false);
     const [alreadyReserved, setAlreadyReserved] = useState(false);
-    const [seatsAlreadyReserved, setSeatsAlreadyReserved] = useState(false); 
     const [problemSeats, setProblemSeats] = useState([]);
     const [autoMissingInput, setAutoMissingInput] = useState(false);
     const [currentReservation, setCurrentReservation] = useState(null);
@@ -134,11 +144,10 @@ function PlaneLayout(props) {
     useEffect(() => {
         for(let i=0; i<props.reservations.length; i++) {
             if (props.reservations[i]["plane_id"] == Number(planeId)) {
-                setSeatsAlreadyReserved(true);
                 setCurrentReservation(props.reservations[i]);
             }
         };
-    } ,[]);
+    } , [alreadyReserved]);
 
     useEffect(() => {
         const getPlaneOccupiedSeats = async (planeId) => {
@@ -207,28 +216,28 @@ function PlaneLayout(props) {
         }
         
         const verifyAddReservation = async (reservation) => {
+            props.setLoading(true);
             try {
                 const res = await API.addReservation(reservation); 
                 if(!res.hasOwnProperty("error")) {
                     const reservations = await API.getReservationByUser(props.user.id);
                     for(let i=0; i<reservations.length; i++) {
-                        if (reservations[i]["plane_id"] == Number(planeId)) {
-                            setSeatsAlreadyReserved(true);
-                            setCurrentReservation(reservations[i]);
+                        if (reservations[i]["plane_id"] == planeId) {
+                            setAlreadyReserved(true);
+                            props.setReservations([...props.reservations, reservations[i]]);
+
                         }
                     };
 
-                    setAlreadyReserved(true);
                     setOccupied([...occupied, ...selected]);
-                    setSelected([]);
-                    props.setReservations([...props.reservations, reservation]);
-
+                    setSelected([]);                    
+                    props.setLoading(false);
                 } else {
                     setProblemSeats(res["occupied"]);
-                    console.log(res["occupied"])
                     setTimeout(() => {
                         setProblemSeats([]);
                     }, 5000);
+
                     console.log(problemSeats)
                 }
 
@@ -246,34 +255,25 @@ function PlaneLayout(props) {
 
     const handleDeleteReservation = () => {
         let res_id = currentReservation["id"];
-        API.deleteReservation(res_id);
-        props.setReservations(props.reservations.filter(reservation => reservation["id"] !== res_id));
-
-        const getPlaneOccupiedSeats = async (planeId) => {
+        const deleteReservation = async (res_id, plane_id) => {
             try {
+                const res = await API.deleteReservation(res_id);
+                props.setReservations(props.reservations.filter(reservation => reservation["id"] != res_id));
+                setCurrentReservation(null);
                 const plane = await API.readPlane(planeId);
                 setplaneOccupiedSeats(plane["occupied_seats"]);
-            } catch (err) {
-                console.log(err);
-            }
-        };
-
-        const getOccupiedSeats = async (planeId) => {
-            try {
                 const seats = await API.getOccupiedSeats(planeId);
                 for (let i = 0; i < seats.length; i++) {
                     seats[i] = seats[i]["row"].toString() + seats[i]["column"];
-                }
-                setOccupied(seats);
-                props.setLoading(false);
-            } catch (err) {
+            }
+            setOccupied(seats);
+            }
+            catch (err) {
                 console.log(err);
             }
         };
 
-        props.setLoading(true);
-        getPlaneOccupiedSeats(planeId);
-        getOccupiedSeats(planeId);
+        deleteReservation(res_id, planeId);
         setSelected([]);
         setAuto(false);
         setCurrentReservation(null);
@@ -315,9 +315,9 @@ function PlaneLayout(props) {
     return (
     <>  
         <Container fluid>
-            <Container fluid>
+            <Col className='ImagePlanePage justify-content-center'>
                 <img src={plane_images[planeId]} alt="..." className="planeImage"/>
-            </Container>
+            </Col>
             <Container>
                 <div className="mx-auto d-block">Total Seats: {props.planes[planeId]["seats"]}</div>
                 <div className="mx-auto d-block">Available Seats: {planeOccupiedSeats} </div>
