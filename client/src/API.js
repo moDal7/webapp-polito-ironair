@@ -136,7 +136,7 @@ const logIn = async (credentials) => {
     }
     else {
       const errDetails = await response.text();
-      throw errDetails;
+      return errDetails;
     }
   };
   

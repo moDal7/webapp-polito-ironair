@@ -29,7 +29,7 @@ function Navigation(props) {
         <Navbar.Brand>
           <i className="bi bi-person-circle icon-size"/>
       
-          <span onClick={handleLogout} className="navbar-brand-text Login">Logout</span>
+          <span onClick={handleLogout} className="navbar-brand-text Login" style={{'cursor':'pointer'}}>Logout</span>
         </Navbar.Brand> : 
         <Link to="/login">
         <Navbar.Brand>

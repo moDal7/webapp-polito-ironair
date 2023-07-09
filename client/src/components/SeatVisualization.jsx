@@ -59,12 +59,12 @@ function Seat(props) {
         setSelectable(true);
       } else if (!props.loggedIn) {
         setSelectable(false);
-      }
+      } else if (props.alreadyReserved) {
+        setSelectable(false);
       } else {
         setSelectable(false);
-   
-
     }
+  }
     }, [props.loggedIn, props.alreadyReserved]);
       
 

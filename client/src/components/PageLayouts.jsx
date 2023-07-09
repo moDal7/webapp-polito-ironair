@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import { Row, Col, Button, Container, Form} from 'react-bootstrap';
+import { Row, Col, Button, Container, Form, Alert} from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 
 
@@ -148,11 +148,14 @@ function PlaneLayout(props) {
     const [selected, setSelected] = useState([]);  
     const [numSeats, setNumSeats] = useState(false);
     const [occupied, setOccupied] = useState([]);
+    const [currentReservation, setCurrentReservation] = useState(null);
+    const [planeOccupiedSeats, setplaneOccupiedSeats] = useState(props.planes[planeId]["occupied_seats"]);
+
     const [auto, setAuto] = useState(false);
     const [alreadyReserved, setAlreadyReserved] = useState(false);
     const [autoMissingInput, setAutoMissingInput] = useState(false);
-    const [currentReservation, setCurrentReservation] = useState(null);
-    const [planeOccupiedSeats, setplaneOccupiedSeats] = useState(props.planes[planeId]["occupied_seats"]);
+
+
     const rows = props.planes[planeId]["num_rows"];
     const columns = props.planes[planeId]["num_columns"];
     
@@ -237,40 +240,45 @@ function PlaneLayout(props) {
         }
         
         const verifyAddReservation = async (reservation) => {
-            props.setLoading(true);
-            try {
-                const res = await API.addReservation(reservation); 
-                if(!res.hasOwnProperty("error")) {
-                    const reservations = await API.getReservationByUser(props.user.id);
-                    for(let i=0; i<reservations.length; i++) {
-                        if (reservations[i]["plane_id"] == planeId) {
-                            
-                            setAlreadyReserved(true);
-                            props.setReservations([...props.reservations, reservations[i]]);
+            if (!selected.length==0) {
+                props.setLoading(true);
+                try {
+                    const res = await API.addReservation(reservation); 
+                    if(!res.hasOwnProperty("error")) {
+                        const reservations = await API.getReservationByUser(props.user.id);
+                        for(let i=0; i<reservations.length; i++) {
+                            if (reservations[i]["plane_id"] == planeId) {
+                                
+                                props.setShowSuccess(true);
+                                props.setReservations([...props.reservations, reservations[i]]);
+                                setAlreadyReserved(true);
 
+                            }
+                        };
+
+                        setOccupied([...occupied, ...selected]);
+                        setSelected([]);                    
+                        props.setLoading(false);
+
+                    } else {
+
+                        setSelected([]);
+                        props.setLoading(false);
+                        props.setShowFailure(true);
+
+                        setAlreadyReserved(false);
+
+                        props.setProblemSeats(res["occupied"]);
+                        setTimeout(function() {
+                            props.setProblemSeats([])
+                            props.setShowFailure(false);
+                        }, 5000);
+
+                                
                         }
-                    };
-
-                    setOccupied([...occupied, ...selected]);
-                    setSelected([]);                    
-                    props.setLoading(false);
-
-                } else {
-
-                    setSelected([]);
-                    props.setLoading(false);
-
-                    setAlreadyReserved(false);
-
-                    props.setProblemSeats(res["occupied"]);
-                    setTimeout(function() {
-                        props.setProblemSeats([]);
-                    }, 5000);
-
-                            
-                    }
-                } catch (err) {
-                console.log(err);
+                    } catch (err) {
+                    console.log(err);
+                }
             }
         };
         verifyAddReservation(reservation);
@@ -352,6 +360,9 @@ function PlaneLayout(props) {
                 <h3 className="planePageInfo">Available: {props.planes[planeId]["seats"]-planeOccupiedSeats} </h3>
             </Container>
             <Container>
+                <AlertSuccess showSuccess={props.showSuccess} setShowSuccess={props.setShowSuccess} />
+                <AlertFailure showFailure={props.showFailure} setShowFailure={props.setShowFailure} />
+            </Container>
                 <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto} problemSeats={props.problemSeats} alreadyReserved={alreadyReserved}/>
             </Container>
             {props.loggedIn ? 
@@ -364,10 +375,7 @@ function PlaneLayout(props) {
             <div>
                 <h4 className='planePageInfo' style={{'margin':'2rem'}}>Please login to select seats.</h4>
             </div>
-            
-            
             }
-        </Container>
     </>
   );
 }
@@ -382,6 +390,54 @@ function LoadingLayout() {
         </Col>
       </Row>
     )
+  }
+
+  function AlertSuccess(props) {
+    return (
+      <>
+      {props.showSuccess ?
+        <Alert className="justify-content-center" style={{maxWidth:'20rem', margin:'auto', marginBottom:'2rem',  marginTop:'2rem'}} variant="success">
+          <Alert.Heading>Reservation Completed</Alert.Heading>
+          <p>
+           Thanks you for choosing IronAir.
+          </p>
+          <hr />
+          <div className="d-flex justify-content-end">
+            <Button onClick={() => props.setShowSuccess(false)} variant="success">
+              Close
+            </Button>
+          </div>
+        </Alert>
+            :
+            <>
+            </>
+      }
+      </>
+    );
+  }
+
+  function AlertFailure(props) {
+    return (
+      <>
+      {props.showFailure ?
+        <Alert className="justify-content-center" style={{maxWidth:'20rem', margin:'auto', marginBottom:'2rem', marginTop :'2rem'}} variant="danger">
+          <Alert.Heading>Impossible to complete reservation.</Alert.Heading>
+          <p>
+           The seats you selected are no longer available.
+          </p>
+          <hr />
+          <div className="d-flex justify-content-end">
+            <Button onClick={() => props.setShowFailure(false)} variant="danger">
+              Close
+            </Button>
+          </div>
+        </Alert>
+            :
+            <>
+            </>
+      }
+      </>
+    );
   }
 
 export {HomeLayout, PlaneLayout, LoadingLayout};
