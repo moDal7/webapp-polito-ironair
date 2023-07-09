@@ -7,13 +7,19 @@ import { useNavigate } from "react-router-dom";
 
 function Login(props){
 
+    // states to handle the presentation of the page
     const [loading, setLoading] = useState(false);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const [greet, setGreet] = useState(false);
     const [show, setShow] = useState(false);
+
+    // states to handle the credentials
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    
+
     const navigate = useNavigate();
-  
+    
+    // function to handle the submit of the login form
     const handleSubmit = (event) => {
         event.preventDefault();
         const credentials = { username, password };
@@ -22,6 +28,7 @@ function Login(props){
         handleLogin(credentials);
     };
     
+    // function to handle the login
     const handleLogin = async (credentials) => {
         try {
             setLoading(true);
@@ -48,6 +55,7 @@ function Login(props){
         }
     };
 
+    // function to handle the popup alert, in case of failed login
     function AlertDismissible() {
 
         return (
@@ -72,7 +80,11 @@ function Login(props){
           </>
         );
       }
-
+    
+    /* Login page */
+    /* If the user is already logged in, it will be redirected to the home page after a timeout */
+    /* If the user is not logged in, it will be presented the login form */
+    /* If the user is not logged in and the login fails, it will be presented an alert */
     return <>
         {loading === true 
         ? <><br/><br/><br/><div className='d-flex justify-content-center'><Spinner animation='border' size='xl' className='mr-2'/> </div></>
@@ -86,7 +98,7 @@ function Login(props){
         <br/>
         <br/>
         <Row >
-            {greet ? <Col xs={12} className="justify-content-center"><h2 className="planePageInfo">Ciao, {props.user["name"]}</h2></Col> : 
+            {greet ? <Col xs={12} className="justify-content-center"><h2 className="planePageInfo" style={{color:'green'}}>Ciao {props.user["name"]}!</h2></Col> : 
             <Col xs={12} className="justify-content-center"><h2 className="planePageInfo">Login</h2></Col>}
         </Row>
         <br/>

@@ -13,13 +13,23 @@ import { HomeLayout, PlaneLayout, LoadingLayout} from './components/PageLayouts'
 
 function App() {
 
+  // state to handle plane information
   const [planes, setPlanes] = useState([]);
+  
+  // state to handle the loadig of the page 
+  // while waiting for the API response
   const [loading, setLoading] = useState(true);
+
+  // states to handle the login information
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+
+  // states to handle the reservations information
+  // and possible problematic seats
   const [reservations, setReservations] = useState([]);
   const [problemSeats, setProblemSeats] = useState([]);
   
+  // states to handle the popup alerts
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
 

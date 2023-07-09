@@ -8,13 +8,17 @@ import API from '../API';
 
 function Navigation(props) {
 
+  // function to handle the logout
   const handleLogout = async () => {
     await API.logOut();
     props.setLoggedIn(false);
     props.setUser(null);
     props.setReservations([]);
   };
-
+  /* Navbar component with the following features:
+  It has links to the home page and to the login page
+  It has a button to logout when the user is logged in 
+  */
   return (
     <Navbar bg="primary" expand="sm" variant="dark" className="navbar-padding">
         <Link to="/">

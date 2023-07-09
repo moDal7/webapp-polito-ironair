@@ -7,6 +7,8 @@ import { Col } from 'react-bootstrap';
 function Rows(props) { 
     function SeatRow(row) {
 
+      // function to map the each seats array row element to a Seat component, with 
+      // the corresponding props and the key equal to the seat code
       const SeatRow = row.toReversed().map((seat, i) => {
       return (
         <>
@@ -37,10 +39,14 @@ function Rows(props) {
 
 function Seat(props) {
 
+    // Seat component state to handle the selection of the seat and the
+    // style associated to it
     const [isSelected, setIsSelected] = useState(false);
     const [selectable, setSelectable] = useState(false);
     const [computedClass, setComputedClass] = useState('SeatImg');
 
+    // function to handle the click on the seat
+    // if the seat is occupied, it is not selectable
     const handleClick = () => {
       if(props.occupied) {
         if (isSelected) {
@@ -53,6 +59,9 @@ function Seat(props) {
       }
     }
 
+    // useEffect to handle the possibility to select the seat
+    // if the user is not logged in, the seat is not selectable
+    // if the user is logged in and it already has a reservation, the seat is not selectable
     useEffect(() => {
        if (props.loggedIn) {
         if(!props.alreadyReserved) {
@@ -67,13 +76,17 @@ function Seat(props) {
   }
     }, [props.loggedIn, props.alreadyReserved]);
       
-
+    // useEffect to handle the selection of the seat
+    // when the user selects the auto mode to select the seats, 
+    // all the seats are deselected
     useEffect(() => {
       if (props.auto) {
         setIsSelected(false);
       }
     }, [props.auto]);
     
+    // useEffect to handle the selection of the seat
+    // each time the selected list changes, the seat style is updated
     useEffect(() => {
       if (props.auto && props.selected.includes(props.code)){
         setIsSelected(true);
@@ -84,6 +97,9 @@ function Seat(props) {
       }
     }, [props.selected]);
     
+    // useEffect to handle the selection of the seat
+    // each time the occupied list changes, the seat style is updated
+    // if the seat has already been selected by another user, it's style gets updated accordingly
     useEffect(() => {
       if (props.problemSeats.includes(props.code)) {
         setComputedClass('SeatProblem');
@@ -94,6 +110,11 @@ function Seat(props) {
       }
     }, [props.problemSeats, props.occupied]);
 
+    /* Seat component
+    The style and source image of the component gets rendered according to the 
+    props received by the parent component.
+    If the seat is not selectable, the onClick function is not passed to the component.
+    */
     return (   
       <>
       {selectable ?

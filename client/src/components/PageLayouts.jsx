@@ -16,7 +16,7 @@ import API from '../API';
 
 const plane_images = [plane1, plane2, plane3];
 
-
+// function to parametrically generate the seats array
 function genSeatsArray(rows, columns) {
     let column_start = "A";
     let seats_array = [];
@@ -32,7 +32,9 @@ function genSeatsArray(rows, columns) {
     return seats_array;
 }
 
-
+/*  HomeLayout component
+it receives the planes array as props and it renders the home page
+*/
 function HomeLayout(props) {
 
     return (
@@ -46,39 +48,39 @@ function HomeLayout(props) {
             </Col>
         </Row>
         <Row>
-            <Col className="homeCols" sm={8}>
+            <Col className="homeCols" sm={7}>
                 <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={0} plane={props.planes[0]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={4} className='planeInfo align-items-center'>
-                <Row>
+            <Col sm={5} className='planeInfo align-items-center text-align-center'>
+                <Row style={{width: '600px'}}>
                     <Col className="SeatsInfo">Seats: {props.planes[0]["seats"]}</Col>
                     <Col className="SeatsInfo">Available: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Col>
                 </Row>
             </Col>
         </Row>
         <Row>
-            <Col className="homeCols" sm={8}>
+            <Col className="homeCols" sm={7}>
                 <Link className="noHyperTextLink" to="/plane/1">
                     <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={4} className='planeInfo align-items-center'>
-                <Row>
+            <Col sm={5} className='planeInfo align-items-center'>
+                <Row style={{width: '600px'}}>
                     <Col className="SeatsInfo">Seats: {props.planes[1]["seats"]}</Col>
                     <Col className="SeatsInfo">Available: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </Col>
                 </Row>
             </Col>
         </Row>
         <Row>
-            <Col className="homeCols" sm={8}>
+            <Col className="homeCols" sm={7}>
                 <Link className="noHyperTextLink" to="/plane/2">
                     <PlaneCard plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={4} className='planeInfo align-items-center'>
-                <Row>
+            <Col sm={5} className='planeInfo align-items-center'>
+                <Row style={{width: '600px'}}>
                     <Col className="SeatsInfo">Seats: {props.planes[2]["seats"]}</Col>
                     <Col className="SeatsInfo">Available : {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </Col>
                 </Row>
@@ -89,6 +91,10 @@ function HomeLayout(props) {
   );
 }
 
+/*  ButtonAndBottoms component
+it renders the bottom page of the plane page with the buttons to select the seats
+and the buttons to confirm or reset the reservation
+*/
 function ButtonsAndBottoms(props) {
 
     return (
@@ -140,27 +146,35 @@ function ButtonsAndBottoms(props) {
     );
 }
 
-
+/*  PlaneLayout component
+Main component with most of the logic of the app
+*/
 function PlaneLayout(props) {
 
+    // extract the correct plane id from the url
     const { planeId } = useParams();
 
+    // data about the current reservation, if any
+    // selected seats and occupied seats
     const [selected, setSelected] = useState([]);  
     const [numSeats, setNumSeats] = useState(false);
     const [occupied, setOccupied] = useState([]);
     const [currentReservation, setCurrentReservation] = useState(null);
     const [planeOccupiedSeats, setplaneOccupiedSeats] = useState(props.planes[planeId]["occupied_seats"]);
 
+    // states to handle the automatic seat selection
+    // and to give feedback in case of missing input to the user
+    // while selecting the seats automatically
     const [auto, setAuto] = useState(false);
     const [alreadyReserved, setAlreadyReserved] = useState(false);
     const [autoMissingInput, setAutoMissingInput] = useState(false);
 
-
     const rows = props.planes[planeId]["num_rows"];
     const columns = props.planes[planeId]["num_columns"];
-    
     const seats_array = genSeatsArray(rows, columns);
 
+    // hook to set the current reservation
+    // each time the user adds or deletes its reservation
     useEffect(() => {
         for(let i=0; i<props.reservations.length; i++) {
             if (props.reservations[i]["plane_id"] == Number(planeId)) {
@@ -170,6 +184,8 @@ function PlaneLayout(props) {
         
     } , [alreadyReserved]);
 
+    // hook to get the occupied seats of the plane
+    // each time the plane page is rendered
     useEffect(() => {
 
         const getPlaneOccupiedSeats = async (planeId) => {
@@ -194,8 +210,9 @@ function PlaneLayout(props) {
         getPlaneOccupiedSeats(planeId);
       }, []);
     
-
-      useEffect(() => {
+    // hook to get the occupied seats of the plane
+    // each time the loggedIn or the alreadyReserved state changes
+    useEffect(() => {
         const getPlaneOccupiedSeats = async (planeId) => {
             try {
                 const plane = await API.readPlane(planeId);
@@ -224,13 +241,20 @@ function PlaneLayout(props) {
         setAuto(false);
         }, [alreadyReserved, props.loggedIn]);
 
+    // function to handle the automatic seat selection 
+    // when the user clicks on the automatic seat selection button
     const handleClick = () => {
-
         let auto_selected = automaticSeatSelection(occupied, seats_array, numSeats);
         setSelected(auto_selected);
         setAuto(true);
     }
 
+    // function to handle the addition of a reservation
+    // it checks if the seats are still available
+    // and if so, it adds the reservation to the database
+    // and updates the occupied seats locally without calling the API
+    // otherwise it shows an alert to the user
+    // and triggers the already occupied seat to be highlighted
     const handleAddReservation = () => {
         
         let reservation = {
@@ -284,11 +308,15 @@ function PlaneLayout(props) {
         verifyAddReservation(reservation);
     }
 
+    // function to handle the reset of the reservation
+    // it resets the selected seats
     const handleResetReservation = () => {
         setSelected([]);
         setAuto(false);
     }
 
+    // function to handle the deletion of a reservation
+    // and updates the occupied seats locally without calling the API 
     const handleDeleteReservation = () => {
         let res_id = currentReservation["id"];
         const deleteReservation = async (res_id, plane_id) => {
@@ -317,6 +345,8 @@ function PlaneLayout(props) {
         props.setLoading(false);
     }
 
+    // function to handle the automatic seat selection
+    // simply selects from the start of the plane
     function automaticSeatSelection(occupied, seats_array, num_seats) {
         setSelected([]);
 
@@ -339,6 +369,8 @@ function PlaneLayout(props) {
         return selected_seats;
     }
 
+    // function to transform the selected seats array into a string
+    // to be stored in the database (possibly unused but potentially useful)
     function selectedToString(selected) {
         let selected_string = "";
         for (let i = 0; i < selected.length; i++) {

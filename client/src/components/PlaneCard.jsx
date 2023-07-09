@@ -8,7 +8,9 @@ import plane3 from '../images/Boeing737.jpg';
 const plane_images = [plane1, plane2, plane3];
 
 function PlaneCard(props) {
-
+    /*  PlaneCard component 
+    it receives the planeId as props and it renders the corresponding plane card
+    */
     return (
         <Card className='PlaneCard' style={{'borderRadius' : '25px', }}>
             <CardImg
