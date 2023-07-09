@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import seat from '../images/seat.png';
 import seat_full from '../images/seat_full.png';
-import { Col, Container, Row, Spinner, Button} from 'react-bootstrap';
+import { Col } from 'react-bootstrap';
 
 function Rows(props) { 
     function SeatRow(row) {
@@ -25,10 +25,11 @@ function Rows(props) {
       <Col>
         {props.SeatsArray.map((row, i) => {
           return (
-            <Col key={i}>
+            <Col key={i++}>
               {SeatRow(row)}
             </Col>
-          )}
+          ) 
+        }
         )}
       </Col>
     )
@@ -56,9 +57,13 @@ function Seat(props) {
        if (props.loggedIn) {
         if(!props.alreadyReserved) {
         setSelectable(true);
-      } else {
+      } else if (!props.loggedIn) {
         setSelectable(false);
       }
+      } else {
+        setSelectable(false);
+   
+
     }
     }, [props.loggedIn, props.alreadyReserved]);
       
@@ -118,12 +123,10 @@ function Seat(props) {
 
 function SeatVisualization(props) {
   return (  
-        <Row md={8} className='SeatViz'>
-          <Col>
+        <Col  className='SeatViz justify-content-center'>
           <Rows SeatsArray={props.SeatsArray} occupied={props.occupied} selected={props.selected} setSelected={props.setSelected} 
           loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved} problemSeats={props.problemSeats}/>
-          </Col>
-        </Row>
+        </Col>
     )
 }
 

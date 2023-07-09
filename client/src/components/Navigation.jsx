@@ -28,8 +28,8 @@ function Navigation(props) {
         {props.loggedIn ? 
         <Navbar.Brand>
           <i className="bi bi-person-circle icon-size"/>
-          <span className="navbar-brand-text" >Ciao, {props.user["name"]} </span>
-          <Button className="Logout" onClick={handleLogout}>Logout</Button>
+      
+          <span onClick={handleLogout} className="navbar-brand-text Login">Logout</span>
         </Navbar.Brand> : 
         <Link to="/login">
         <Navbar.Brand>

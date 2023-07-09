@@ -1,5 +1,4 @@
 import React from 'react';
-import { useState } from 'react';
 import { Button, Card, CardImg } from 'react-bootstrap';
 import '../App.css';
 import plane1 from '../images/ATR72.jpg'; 
@@ -21,8 +20,8 @@ function PlaneCard(props) {
             <Card.Body>
                 <Card.Title>{props.plane["plane_name"]}</Card.Title>
                 <Card.Text>
-                    <div className='muted'>{props.plane["type"]}</div>
-                    <div>{props.plane["description"]}</div>
+                    <p className='muted'>{props.plane["type"]}</p>
+                    <p>{props.plane["description"]}</p>
                 </Card.Text>
                 {props.loggedIn ? <Button variant="primary">Add/Edit Reservation</Button> : <Button variant="secondary">See Plane Page</Button>}
             </Card.Body>

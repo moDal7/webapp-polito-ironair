@@ -21,6 +21,18 @@
 - GET `/api/planes/:id`
   - The API call has the id parameter, which is used to determine which plane information give as response.
   - The response code is 200 (OK), and the response body is a JSON object with all the info of the corresponding plane. If the parameter is not an Integer or is higher or lower than fixed thresholds the response code is 422 (Unprocessable Entity).
+- GET `/api/planes/:id/seats`
+  - The API call has the id parameter, which is used to determine which plane information give as response. It differentiates from the previous for the addition of '/seats'.
+  - The response code is 200 (OK), and the response body is a JSON object with all the occupied seats of the requestes plane. If the id is not an integer or is below a minimum it returns 422 (Unprocessable Entity).
+- GET `/api/reservations/user/:uid`
+  - The API call has the id parameter, which is used to determine which user we are interested in .
+  - The response code is 200 (OK), and the response body is a JSON object with all the reservations made by a specific user. If the id is not an integer or is below a minimum it returns 422 (Unprocessable Entity).
+- POST `/api/reservations/`
+  - The API call has no parameter. The request body contains the plane_id, user_id and seats in string format needed to create a new reservation.
+  - The server verifies that the user is logged in, and returns 401 (Unauthorized) otherwise. It also checks for validity of the plane_id. After substituting the user_id with the id of the currently authenticated user it creates the entry in the database. The response code is 201 (Created), and the response body is the ID of the reservation created. If some of the seats in the request body appear to be already reserved in the database it returns a JSON object with an error message and the list of the occupied seats codes.
+- DELETE `/api/reservations/:rid`
+  - The API call the 'rid' parameter, which indicates which reservations we want to delete.
+  - The server verifies that the user is logged in, and returns 401 (Unauthorized) otherwise. It also checks for validity of the request parameter.The response code is 200 (Created) in case of successful deleting of the reservation, and 404 otherwise. The server proceeds to update the informations in all the tables of the DB concerning the deleted reservation.
 ## Database Tables
 
 - Table `users` - contains user_id, credentials, has_reserved, reservation_id

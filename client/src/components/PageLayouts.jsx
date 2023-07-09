@@ -38,47 +38,54 @@ function HomeLayout(props) {
     return (
     <>
         <Row>
-            <Col className="homeCols" sm={9}>
+            <Col className="homeTitle">
+                <Row xs={12}>
+                    <h1 className="homeTitle">Welcome to IronAir</h1>
+                    <i className="bi bi-airplane-fill icon-size"/>
+                </Row>
+            </Col>
+        </Row>
+        <Row>
+            <Col className="homeCols" sm={8}>
                 <Link className="noHyperTextLink" to="/plane/0">
                     <PlaneCard plane_num={0} plane={props.planes[0]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+            <Col sm={4} className='planeInfo align-items-center'>
                 <Row>
-                    <Col className="SeatsInfo">Total Seats: {props.planes[0]["seats"]}</Col>
-                    <Col className="SeatsInfo">Available Seats: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Col>
+                    <Col className="SeatsInfo">Seats: {props.planes[0]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available: {props.planes[0]["seats"] - props.planes[0]["occupied_seats"]} </Col>
                 </Row>
             </Col>
         </Row>
-    
         <Row>
-            <Col className="homeCols" sm={9}>
-                <Link className="noHyperTextLink" to="/plane/0">
+            <Col className="homeCols" sm={8}>
+                <Link className="noHyperTextLink" to="/plane/1">
                     <PlaneCard plane_num={1} plane={props.planes[1]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+            <Col sm={4} className='planeInfo align-items-center'>
                 <Row>
-                    <Col className="SeatsInfo">Total Seats: {props.planes[1]["seats"]}</Col>
-                    <Col className="SeatsInfo">Available Seats: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </Col>
+                    <Col className="SeatsInfo">Seats: {props.planes[1]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available: {props.planes[1]["seats"] - props.planes[1]["occupied_seats"]} </Col>
                 </Row>
             </Col>
         </Row>
-        
         <Row>
-            <Col className="homeCols" sm={9}>
-                <Link className="noHyperTextLink" to="/plane/0">
+            <Col className="homeCols" sm={8}>
+                <Link className="noHyperTextLink" to="/plane/2">
                     <PlaneCard plane_num={2} plane={props.planes[2]} loggedIn={props.loggedIn}/>
                 </Link>
             </Col>
-            <Col sm={2} className='planeInfo justify-content-evenly align-items-center'>
+            <Col sm={4} className='planeInfo align-items-center'>
                 <Row>
-                    <Col className="SeatsInfo">Total Seats: {props.planes[2]["seats"]}</Col>
-                    <Col className="SeatsInfo">Available Seats: {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </Col>
+                    <Col className="SeatsInfo">Seats: {props.planes[2]["seats"]}</Col>
+                    <Col className="SeatsInfo">Available : {props.planes[2]["seats"] - props.planes[2]["occupied_seats"]} </Col>
                 </Row>
             </Col>
         </Row>
-    </>
+ 
+        </>
   );
 }
 
@@ -87,35 +94,46 @@ function ButtonsAndBottoms(props) {
     return (
     <Container fluid>
         {props.alreadyReserved ?
-        <div>
-            <div>
-                <Button variant="primary" size="lg" onClick={props.handleDeleteReservation}>
+            <Container>
+            <Row>
+                <Col md={12}>
+                <Button className='myButton justify-content-center' style={{'display':'flex'}} variant="warning" size="lg" onClick={props.handleDeleteReservation}>
                     Delete Reservation
                 </Button>
-            </div>
-        </div>
+                </Col>
+             </Row>
+
+            </Container>
         :
         <div>
-            <div>
-                <Button variant="primary" size="lg" onClick={props.handleClick}>
+            <Container>
+                <Button className='myButton justify-content-center' style={{'display':'flex'}} variant="primary" size="lg" onClick={props.handleClick}>
                     Automatic Seat Selection
                 </Button>
-                <Form>
+                <Form className='formGroup'>
                     <Form.Group controlId="formNumSeats">
                         <Form.Label>Number of Seats</Form.Label>
                         <Form.Control  style={props.autoMissingInput ? {'border-color': 'orange'} : {'border': 'faded'}}type="number" placeholder="Enter number of seats" onChange={(e) => props.setNumSeats(e.target.value)}/>
                     </Form.Group>
                 </Form>
-            </div>
-            <div>
-                <h3>Selected seats: {props.selectedToString}</h3>
-                <Button variant="primary" size="lg" onClick={props.handleAddReservation}>
-                    Confirm Reservation
-                </Button>
-                <Button variant="primary" size="lg" onClick={props.handleResetReservation}>
-                    Reset Reservation
-                </Button>
-            </div>
+                <Container>
+                <Row>
+                    <Col md={6}>
+                        <h5 className="selectedSeats">Selected seats: {props.selectedToString}</h5>
+                    </Col>
+                    <Col md={3}>
+                        <Button className="myButton justify-content-center" style={{'display':'flex'}} variant="secondary" size="lg" onClick={props.handleResetReservation}>
+                            Reset Reservation
+                        </Button>
+                    </Col>
+                    <Col md={3}>
+                        <Button className="myButton justify-content-center" style={{'display':'flex'}} variant="primary" size="lg" onClick={props.handleAddReservation}>
+                            Confirm Reservation
+                        </Button>
+                    </Col>
+                </Row>
+                </Container>
+            </Container>
         </div>
         }
     </Container>
@@ -201,7 +219,7 @@ function PlaneLayout(props) {
         getOccupiedSeats(planeId);
         setSelected([]);
         setAuto(false);
-        }, [alreadyReserved]);
+        }, [alreadyReserved, props.loggedIn]);
 
     const handleClick = () => {
 
@@ -246,7 +264,7 @@ function PlaneLayout(props) {
 
                     props.setProblemSeats(res["occupied"]);
                     setTimeout(function() {
-                       props.setProblemSeats([]);
+                        props.setProblemSeats([]);
                     }, 5000);
 
                             
@@ -324,26 +342,27 @@ function PlaneLayout(props) {
     
     return (
     <>  
-        <Container fluid>
-            <Col className='ImagePlanePage justify-content-center'>
+        <Container>
+            <Container className='ImagePlanePage justify-content-center'>
                 <img src={plane_images[planeId]} alt="..." className="planeImage"/>
-            </Col>
-            <Container>
-                <div className="mx-auto d-block">Total Seats: {props.planes[planeId]["seats"]}</div>
-                <div className="mx-auto d-block">Available Seats: {planeOccupiedSeats} </div>
             </Container>
-            <Container fluid>
+            <Container>
+                <h3 className="planePageInfo">Total Seats: {props.planes[planeId]["seats"]}</h3>
+                <h3 className="planePageInfo">Occupied: {planeOccupiedSeats}</h3>
+                <h3 className="planePageInfo">Available: {props.planes[planeId]["seats"]-planeOccupiedSeats} </h3>
+            </Container>
+            <Container>
                 <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto} problemSeats={props.problemSeats} alreadyReserved={alreadyReserved}/>
             </Container>
             {props.loggedIn ? 
-            <div>
+            <div className="ButtonsBottoms">
                 <ButtonsAndBottoms alreadyReserved={alreadyReserved} handleClick={handleClick} handleAddReservation={handleAddReservation} 
              handleResetReservation={handleResetReservation} handleDeleteReservation={handleDeleteReservation} selectedToString={selectedToString(selected)} 
              setNumSeats={setNumSeats} autoMissingInput={autoMissingInput} setAutoMissingInput={setAutoMissingInput}/> 
             </div>
             :
             <div>
-                <h3>Please login to select seats</h3>
+                <h4 className='planePageInfo' style={{'margin':'2rem'}}>Please login to select seats.</h4>
             </div>
             
             
