@@ -143,7 +143,7 @@ app.get('/api/planes/:id',
 // get occupied seats on the id plane
 
 app.get('/api/planes/:id/seats',
-  [ check('id').isInt({min: 1}) ],
+  [ check('id').isInt({min: 0}) ],
   async (req, res) => {
     try {
       const result = await planesDao.getOccupiedSeats(req.params.id);
