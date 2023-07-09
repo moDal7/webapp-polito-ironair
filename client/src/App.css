@@ -122,7 +122,15 @@
   width: 40px;
   height: 40px;
   margin: 2px;
-  filter: invert(52%) sepia(81%) saturate(6765%) hue-rotate(221deg) brightness(105%) contrast(101%);;
+  filter: invert(52%) sepia(81%) saturate(6765%) hue-rotate(221deg) brightness(105%) contrast(101%);
+}
+
+.SeatProblem {
+  opacity: 70%;
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  filter: invert(14%) sepia(93%) saturate(6970%) hue-rotate(3deg) brightness(94%) contrast(116%);
 }
 
 .SeatViz {

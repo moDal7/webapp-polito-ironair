@@ -238,7 +238,7 @@ app.post('/api/reservations/',
     try {
       const check = await reservationDao.seatCheck(reservation.seats, reservation.plane_id);
       if (check.length>0)
-        return res.status(422).json({ occupied: check, error: "Some seats are not available"});
+        return res.json({ occupied: check, error: "Some seats are not available"});
     } catch (err) {
       res.status(503).json({ error: `Database error during the addition of the reservation: ${err}` });
     }

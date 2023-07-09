@@ -132,7 +132,6 @@ function PlaneLayout(props) {
     const [occupied, setOccupied] = useState([]);
     const [auto, setAuto] = useState(false);
     const [alreadyReserved, setAlreadyReserved] = useState(false);
-    const [problemSeats, setProblemSeats] = useState([]);
     const [autoMissingInput, setAutoMissingInput] = useState(false);
     const [currentReservation, setCurrentReservation] = useState(null);
     const [planeOccupiedSeats, setplaneOccupiedSeats] = useState(props.planes[planeId]["occupied_seats"]);
@@ -140,16 +139,18 @@ function PlaneLayout(props) {
     const columns = props.planes[planeId]["num_columns"];
     
     const seats_array = genSeatsArray(rows, columns);
-    
+
     useEffect(() => {
         for(let i=0; i<props.reservations.length; i++) {
             if (props.reservations[i]["plane_id"] == Number(planeId)) {
                 setCurrentReservation(props.reservations[i]);
             }
         };
+        
     } , [alreadyReserved]);
 
     useEffect(() => {
+
         const getPlaneOccupiedSeats = async (planeId) => {
           try {
             const seats = await API.getOccupiedSeats(planeId);
@@ -168,8 +169,10 @@ function PlaneLayout(props) {
             console.log(err);
           }
         };
+
         getPlaneOccupiedSeats(planeId);
       }, []);
+    
 
       useEffect(() => {
         const getPlaneOccupiedSeats = async (planeId) => {
@@ -223,6 +226,7 @@ function PlaneLayout(props) {
                     const reservations = await API.getReservationByUser(props.user.id);
                     for(let i=0; i<reservations.length; i++) {
                         if (reservations[i]["plane_id"] == planeId) {
+                            
                             setAlreadyReserved(true);
                             props.setReservations([...props.reservations, reservations[i]]);
 
@@ -232,16 +236,22 @@ function PlaneLayout(props) {
                     setOccupied([...occupied, ...selected]);
                     setSelected([]);                    
                     props.setLoading(false);
+
                 } else {
-                    setProblemSeats(res["occupied"]);
-                    setTimeout(() => {
-                        setProblemSeats([]);
+
+                    setSelected([]);
+                    props.setLoading(false);
+
+                    setAlreadyReserved(false);
+
+                    props.setProblemSeats(res["occupied"]);
+                    setTimeout(function() {
+                       props.setProblemSeats([]);
                     }, 5000);
 
-                    console.log(problemSeats)
-                }
-
-            } catch (err) {
+                            
+                    }
+                } catch (err) {
                 console.log(err);
             }
         };
@@ -323,7 +333,7 @@ function PlaneLayout(props) {
                 <div className="mx-auto d-block">Available Seats: {planeOccupiedSeats} </div>
             </Container>
             <Container fluid>
-                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto} problemSeats={problemSeats} alreadyReserved={alreadyReserved}/>
+                <SeatVisualization SeatsArray={seats_array} selected={selected} setSelected={setSelected} occupied={occupied} loggedIn={props.loggedIn} auto={auto} setAuto={setAuto} problemSeats={props.problemSeats} alreadyReserved={alreadyReserved}/>
             </Container>
             {props.loggedIn ? 
             <div>

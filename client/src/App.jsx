@@ -18,6 +18,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [reservations, setReservations] = useState([]);
+  const [problemSeats, setProblemSeats] = useState([]);
   
 
   useEffect(() => {
@@ -44,7 +45,7 @@ function App() {
         <Routes>
         <Route index element={ loading ? <LoadingLayout /> : <HomeLayout planes={planes} loggedIn={loggedIn} loading={loading} setLoading={setLoading}/>}/>
             <Route path="/login" element={<Login loggedIn={loggedIn} setLoggedIn={setLoggedIn} user={user} setUser={setUser} setReservations={setReservations} loading={loading} setLoading={setLoading}/>}/>
-            <Route path="/plane/:planeId" element={ loading ? <LoadingLayout /> : <PlaneLayout planes={planes} reservations={reservations} setReservations={setReservations} loggedIn={loggedIn} loading={loading} setLoading={setLoading} user={user}/>}/>
+            <Route path="/plane/:planeId" element={ loading ? <LoadingLayout /> : <PlaneLayout planes={planes} reservations={reservations} setReservations={setReservations} loggedIn={loggedIn} loading={loading} setLoading={setLoading} user={user} problemSeats={problemSeats} setProblemSeats={setProblemSeats}/>}/>
           <Route/>
         </Routes>
       </Container>

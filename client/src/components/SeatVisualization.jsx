@@ -11,9 +11,9 @@ function Rows(props) {
       return (
         <>
           {props.occupied.includes(seat) ? 
-          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={false} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved}/>
+          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={false} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved} problemSeats={props.problemSeats}/>
           :
-          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={true} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved}/>
+          <Seat code={seat} key={seat} selected={props.selected} setSelected={props.setSelected} occupied={true} loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved} problemSeats={props.problemSeats}/>
           }
         </>
       )
@@ -38,7 +38,8 @@ function Seat(props) {
 
     const [isSelected, setIsSelected] = useState(false);
     const [selectable, setSelectable] = useState(false);
-  
+    const [computedClass, setComputedClass] = useState('SeatImg');
+
     const handleClick = () => {
       if(props.occupied) {
         if (isSelected) {
@@ -77,7 +78,16 @@ function Seat(props) {
         setIsSelected(false);
       }
     }, [props.selected]);
-
+    
+    useEffect(() => {
+      if (props.problemSeats.includes(props.code)) {
+        setComputedClass('SeatProblem');
+      } else if (props.occupied) {
+        setComputedClass('SeatImg');
+      } else {
+        setComputedClass('SeatImgOccupied');
+      }
+    }, [props.problemSeats, props.occupied]);
 
     return (   
       <>
@@ -85,9 +95,9 @@ function Seat(props) {
         <Col className="Seat" onClick={handleClick}>
         {
           isSelected ? 
-            <img src={seat_full} alt={props.code} className={props.occupied ? 'SeatImg' : 'SeatImgOccupied'}/>
+            <img src={seat_full} alt={props.code} className={computedClass}/>
             :
-            <img src={props.occupied ? seat : seat_full} alt={props.code} className={props.occupied ? 'SeatImg' : 'SeatImgOccupied'}/>
+            <img src={props.occupied ? seat : seat_full} alt={props.code} className={computedClass}/>
         }
             <div style={{'text-align': 'center'}}>{props.code}</div>
         </Col> 
@@ -95,9 +105,9 @@ function Seat(props) {
         <Col className="Seat" >
           {
             isSelected ? 
-              <img src={seat_full} alt={props.code} className={props.occupied ? 'SeatImg' : 'SeatImgOccupied'}/>
+              <img src={seat_full} alt={props.code} className={computedClass}/>
               :
-              <img src={props.occupied ? seat : seat_full} className={props.occupied ? 'SeatImg' : 'SeatImgOccupied'}/>
+              <img src={props.occupied ? seat : seat_full} className={computedClass}/>
           }
               <div style={{'text-align': 'center'}}>{props.code}</div>
         </Col> 
@@ -111,11 +121,10 @@ function SeatVisualization(props) {
         <Row md={8} className='SeatViz'>
           <Col>
           <Rows SeatsArray={props.SeatsArray} occupied={props.occupied} selected={props.selected} setSelected={props.setSelected} 
-          loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved}/>
+          loggedIn={props.loggedIn} auto={props.auto} alreadyReserved={props.alreadyReserved} problemSeats={props.problemSeats}/>
           </Col>
         </Row>
     )
 }
-
 
 export default SeatVisualization;
