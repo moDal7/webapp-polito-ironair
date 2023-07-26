@@ -1,3 +1,5 @@
+The following is the README.md file as required by the specifications for this project. The site is a very simple plane seat reservation application, which has been created with Vite, React and Express, using SQLite for data persistency.
+
 # Exam #2: "Airplane Seats"
 
 ## Student: s301199 Marco D'Almo
